@@ -85,7 +85,7 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
                 _object = compoundValue;
             }
             // TODO: TagList
-            else if (value is byte[] byteArrayValue)
+            else if (value is sbyte[] byteArrayValue)
             {
                 Type = TagType.ByteArray;
                 _object = byteArrayValue;
@@ -160,7 +160,7 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
     public static TagValue CreateCompound(TagCompound value)
         => new TagValue(TagType.Compound, value);
 
-    public static TagValue CreateByteArray(byte[] value)
+    public static TagValue CreateByteArray(sbyte[] value)
         => new TagValue(TagType.ByteArray, value);
 
     public static TagValue CreateIntArray(int[] value)
@@ -183,7 +183,7 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
     public static implicit operator TagValue(string value) => CreateString(value);
     // TODO: implicit operator for TagList
     public static implicit operator TagValue(TagCompound value) => CreateCompound(value);
-    public static implicit operator TagValue(byte[] value) => CreateByteArray(value);
+    public static implicit operator TagValue(sbyte[] value) => CreateByteArray(value);
     public static implicit operator TagValue(int[] value) => CreateIntArray(value);
     public static implicit operator TagValue(long[] value) => CreateLongArray(value);
 
@@ -311,16 +311,16 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
     }
 
     /// <summary>
-    /// Read the value stored in <see cref="TagValue"/> as a <see cref="byte[]"/> value.
+    /// Read the value stored in <see cref="TagValue"/> as a <see cref="sbyte[]"/> value.
     /// </summary>
-    /// <returns>A <see cref="byte[]"/> value</returns>
-    /// <exception cref="InvalidCastException">The value stored is not a <see cref="byte[]"/></exception>
-    public readonly byte[] AsByteArray()
+    /// <returns>A <see cref="sbyte[]"/> value</returns>
+    /// <exception cref="InvalidCastException">The value stored is not a <see cref="sbyte[]"/></exception>
+    public readonly sbyte[] AsByteArray()
     {
-        if (Type == TagType.ByteArray && _object is byte[] value)
+        if (Type == TagType.ByteArray && _object is sbyte[] value)
             return value;
         else
-            throw new InvalidCastException($"Cannot cast a tag of {Type} to {typeof(byte[])}");
+            throw new InvalidCastException($"Cannot cast a tag of {Type} to {typeof(sbyte[])}");
     }
 
     /// <summary>
