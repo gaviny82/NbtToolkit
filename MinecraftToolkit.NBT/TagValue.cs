@@ -30,7 +30,7 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
             TagType.Double => _value.DoubleValue,
             TagType.Bool => _value.BoolValue,
             TagType.String => _object!,
-            TagType.List => throw new NotImplementedException(),
+            TagType.List => _object!,
             TagType.Compound => _object!,
             TagType.ByteArray => _object!,
             TagType.IntArray => _object!,
@@ -84,7 +84,11 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
                 Type = TagType.Compound;
                 _object = compoundValue;
             }
-            // TODO: TagList
+            else if (value is TagList tagListValue)
+            {
+                Type = TagType.List;
+                _object = tagListValue;
+            }
             else if (value is sbyte[] byteArrayValue)
             {
                 Type = TagType.ByteArray;
@@ -155,7 +159,8 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
     public static TagValue CreateString(string value)
         => new TagValue(TagType.String, value);
 
-    // TODO: CreateList
+    public static TagValue CreateList(TagList value)
+        => new TagValue(TagType.List, value);
 
     public static TagValue CreateCompound(TagCompound value)
         => new TagValue(TagType.Compound, value);
@@ -181,7 +186,7 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
     public static implicit operator TagValue(double value) => CreateDouble(value);
     public static implicit operator TagValue(bool value) => CreateBool(value);
     public static implicit operator TagValue(string value) => CreateString(value);
-    // TODO: implicit operator for TagList
+    public static implicit operator TagValue(TagList value) => CreateList(value);
     public static implicit operator TagValue(TagCompound value) => CreateCompound(value);
     public static implicit operator TagValue(sbyte[] value) => CreateByteArray(value);
     public static implicit operator TagValue(int[] value) => CreateIntArray(value);
@@ -295,7 +300,18 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
             throw new InvalidCastException($"Cannot cast a tag of {Type} to {typeof(string)}");
     }
 
-    // TODO: AsList
+    /// <summary>
+    /// Read the value stored in <see cref="TagValue"/> as a <see cref="TagList"/> value.
+    /// </summary>
+    /// <returns>A <see cref="TagList"/> value</returns>
+    /// <exception cref="InvalidCastException">The value stored is not a <see cref="TagList"/></exception>
+    public readonly TagList AsList()
+    {
+        if (Type == TagType.List && _object is TagList value)
+            return value;
+        else
+            throw new InvalidCastException($"Cannot cast a tag of {Type} to {typeof(TagList)}");
+    }
 
     /// <summary>
     /// Read the value stored in <see cref="TagValue"/> as a <see cref="TagCompound"/> value.
