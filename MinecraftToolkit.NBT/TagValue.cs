@@ -15,26 +15,97 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
     public TagType Type { get; private set; }
 
     /// <summary>
-    /// Get the value stored in <see cref="TagValue"/> as an object.
-    /// <para>Boxing occurs when the value stored has a value type.</para>
+    /// Access the value stored in <see cref="TagValue"/> as an object.
+    /// <para>Boxing and unboxing occurs when the value has a <see cref="ValueType"/>.</para>
     /// </summary>
-    public readonly object Value => Type switch
+    public object Value
     {
-        TagType.Byte => _value.ByteValue,
-        TagType.Short => _value.ShortValue,
-        TagType.Int => _value.IntValue,
-        TagType.Long => _value.LongValue,
-        TagType.Float => _value.FloatValue,
-        TagType.Double => _value.DoubleValue,
-        TagType.Bool => _value.BoolValue,
-        TagType.String => _object!,
-        TagType.List => throw new NotImplementedException(),
-        TagType.Compound => _object!,
-        TagType.ByteArray => _object!,
-        TagType.IntArray => _object!,
-        TagType.LongArray => _object!,
-        _ => throw new InvalidCastException($"Cannot cast a tag of {Type} to {typeof(object)}")
-    };
+        readonly get => Type switch
+        {
+            TagType.Byte => _value.ByteValue,
+            TagType.Short => _value.ShortValue,
+            TagType.Int => _value.IntValue,
+            TagType.Long => _value.LongValue,
+            TagType.Float => _value.FloatValue,
+            TagType.Double => _value.DoubleValue,
+            TagType.Bool => _value.BoolValue,
+            TagType.String => _object!,
+            TagType.List => throw new NotImplementedException(),
+            TagType.Compound => _object!,
+            TagType.ByteArray => _object!,
+            TagType.IntArray => _object!,
+            TagType.LongArray => _object!,
+            _ => throw new InvalidCastException($"Cannot cast a tag of {Type} to {typeof(object)}")
+        };
+        set
+        {
+            if (value is sbyte byteValue)
+            {
+                Type = TagType.Byte;
+                _value.ByteValue = byteValue;
+            }
+            else if (value is short shortValue)
+            {
+                Type = TagType.Short;
+                _value.ShortValue = shortValue;
+            }
+            else if (value is int intValue)
+            {
+                Type = TagType.Int;
+                _value.IntValue = intValue;
+            }
+            else if (value is long longValue)
+            {
+                Type = TagType.Long;
+                _value.LongValue = longValue;
+            }
+            else if (value is float floatValue)
+            {
+                Type = TagType.Float;
+                _value.FloatValue = floatValue;
+            }
+            else if (value is double doubleValue)
+            {
+                Type = TagType.Double;
+                _value.DoubleValue = doubleValue;
+            }
+            else if (value is bool boolValue)
+            {
+                Type = TagType.Bool;
+                _value.BoolValue = boolValue;
+            }
+            else if (value is string stringValue)
+            {
+                Type = TagType.String;
+                _object = stringValue;
+            }
+            else if (value is TagCompound compoundValue)
+            {
+                Type = TagType.Compound;
+                _object = compoundValue;
+            }
+            // TODO: TagList
+            else if (value is byte[] byteArrayValue)
+            {
+                Type = TagType.ByteArray;
+                _object = byteArrayValue;
+            }
+            else if (value is int[] intArrayValue)
+            {
+                Type = TagType.IntArray;
+                _object = intArrayValue;
+            }
+            else if (value is long[] longArrayValue)
+            {
+                Type = TagType.LongArray;
+                _object = longArrayValue;
+            }
+            else
+            {
+                throw new InvalidCastException($"Cannot cast a tag of {Type} to {typeof(object)}");
+            }
+        }
+    }
 
 
     /// <summary>
