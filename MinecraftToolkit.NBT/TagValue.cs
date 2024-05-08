@@ -117,8 +117,7 @@ public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 
     /// </summary>
     public TagValue()
     {
-        Type = TagType.Int;
-        _value.IntValue = 0;
+        // All fields in TagValueUnion are initialized with default values of the value types
     }
 
     private TagValue(TagType type, TagValueUnion value)
