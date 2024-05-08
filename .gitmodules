@@ -1,0 +1,6 @@
+[submodule "Benchmarks/fNbt"]
+	path = Benchmarks/fNbt
+	url = https://github.com/mstefarov/fNbt.git
+[submodule "Benchmarks/Substrate"]
+	path = Benchmarks/Substrate
+	url = https://github.com/henrygab/Substrate.git
