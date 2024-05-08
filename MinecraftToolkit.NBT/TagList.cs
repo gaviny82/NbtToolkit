@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.NBT;
+namespace MinecraftToolkit.Nbt;
 
 public abstract class TagList
 {

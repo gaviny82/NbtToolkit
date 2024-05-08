@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace MinecraftToolkit.NBT;
+namespace MinecraftToolkit.Nbt;
 
 public struct TagValue // sizeof(TagValue) = 24 (_value: 8 + _object: 8 + Type: 4 + alignment: 4)
 {

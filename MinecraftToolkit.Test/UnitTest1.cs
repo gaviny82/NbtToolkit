@@ -1,4 +1,4 @@
-using MinecraftToolkit.NBT;
+using MinecraftToolkit.Nbt;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

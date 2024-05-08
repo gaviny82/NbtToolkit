@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftToolkit.NBT", "MinecraftToolkit.NBT\MinecraftToolkit.NBT.csproj", "{19803358-3248-4B02-B0C6-C3266FF94E68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftToolkit.Nbt", "MinecraftToolkit.Nbt\MinecraftToolkit.Nbt.csproj", "{19803358-3248-4B02-B0C6-C3266FF94E68}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftToolkit.Test", "MinecraftToolkit.Test\MinecraftToolkit.Test.csproj", "{21B0635B-97DE-43D9-8656-972C41F8F96B}"
 EndProject

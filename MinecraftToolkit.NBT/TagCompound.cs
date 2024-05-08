@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.NBT;
+namespace MinecraftToolkit.Nbt;
 
 public class TagCompound : IDictionary<string, TagValue>
 {
