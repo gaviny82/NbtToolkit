@@ -3,7 +3,7 @@
 namespace MinecraftToolkit.Nbt.Benchmark;
 
 [MemoryDiagnoser]
-public class TagCreationBenchmark
+public class CreateIntTagsBenchmark
 {
     [Params(1000, 10000)]
     public int N { get; set; }
@@ -26,7 +26,7 @@ public class TagCreationBenchmark
     }
 
     [Benchmark(Baseline = true)]
-    public TagCompound TagCreation_ValueTags()
+    public TagCompound CreateIntTags()
     {
         TagCompound tag = new();
         for (int i = 0; i < N; i++)
@@ -37,7 +37,7 @@ public class TagCreationBenchmark
     }
 
     [Benchmark]
-    public fNbt.NbtCompound TagCreation_ValueTags_fNbt()
+    public fNbt.NbtCompound CreateIntTags_fNbt()
     {
         fNbt.NbtCompound tag = new();
         for (int i = 0; i < N; i++)
@@ -49,7 +49,7 @@ public class TagCreationBenchmark
     }
 
     [Benchmark]
-    public Substrate.Nbt.TagNodeCompound TagCreation_ValueTags_Substrate()
+    public Substrate.Nbt.TagNodeCompound CreateIntTags_Substrate()
     {
         Substrate.Nbt.TagNodeCompound tag = new();
         for (int i = 0; i < N; i++)
@@ -57,5 +57,27 @@ public class TagCreationBenchmark
             tag[keys[i]] = new Substrate.Nbt.TagNodeInt(values[i]);
         }
         return tag;
+    }
+
+    [Benchmark]
+    public Dictionary<string, int> CreateIntTags_Reference_DictInt()
+    {
+        Dictionary<string, int > dict = new();
+        for (int i = 0; i < N; i++)
+        {
+            dict[keys[i]] = values[i];
+        }
+        return dict;
+    }
+
+    [Benchmark]
+    public Dictionary<string, TagValue> CreateIntTags_Reference_DictTagValue()
+    {
+        Dictionary<string, TagValue> dict = new();
+        for (int i = 0; i < N; i++)
+        {
+            dict[keys[i]] = TagValue.CreateInt(values[i]);
+        }
+        return dict;
     }
 }
