@@ -2,5 +2,5 @@
 using MinecraftToolkit.Nbt.Benchmark;
 
 BenchmarkRunner.Run<CreateIntTagsBenchmark>();
-BenchmarkRunner.Run<CreateDoubleTagsBenchmark>();
-BenchmarkRunner.Run<CreateStringTagsBenchmark>();
+//BenchmarkRunner.Run<CreateDoubleTagsBenchmark>();
+//BenchmarkRunner.Run<CreateStringTagsBenchmark>();
