@@ -3,75 +3,66 @@
 namespace MinecraftToolkit.Nbt.Benchmark;
 
 [MemoryDiagnoser(false)]
-public class CreateIntTagsBenchmark
+public class CreateStringTagsBenchmark
 {
     [Params(1000, 10000)]
     public int N { get; set; }
 
     private string[] keys = null!;
-    private int[] values = null!;
+    private string[] values = null!;
 
     private TagCompound _tag = new();
     private fNbt.NbtCompound _fnbtTag = new();
     private Substrate.Nbt.TagNodeCompound _substrateTag = new();
-    private Dictionary<string, int> _dictInt = new();
+    private Dictionary<string, string> _dictInt = new();
 
 
     [GlobalSetup]
     public void Setup()
     {
         keys = new string[N];
-        values = new int[N];
+        values = new string[N];
         Random random = new();
         for (int i = 0; i < N; i++)
         {
             keys[i] = Guid.NewGuid().ToString();
-            values[i] = random.Next();
+            values[i] = random.Next().ToString();
         }
     }
 
     [Benchmark(Baseline = true)]
-    public void CreateIntTags()
+    public void CreateStringTags()
     {
         for (int i = 0; i < N; i++)
         {
-            _tag[keys[i]] = TagValue.CreateDouble(values[i]);
+            _tag[keys[i]] = TagValue.CreateString(values[i]);
         }
     }
 
     [Benchmark]
-    public void CreateIntTags_fNbt()
+    public void CreateStringTags_fNbt()
     {
         for (int i = 0; i < N; i++)
         {
-            _fnbtTag[keys[i]] = new fNbt.NbtInt(keys[i], values[i]);
+            _fnbtTag[keys[i]] = new fNbt.NbtString(keys[i], values[i]);
         }
     }
 
     [Benchmark]
-    public void CreateIntTags_Substrate()
+    public void CreateStringTags_Substrate()
     {
         for (int i = 0; i < N; i++)
         {
-            _substrateTag[keys[i]] = new Substrate.Nbt.TagNodeInt(values[i]);
+            _substrateTag[keys[i]] = new Substrate.Nbt.TagNodeString(values[i]);
         }
     }
 
     [Benchmark]
-    public void CreateIntTags_Reference_DictInt()
+    public void CreateStringTags_Reference_Dict()
     {
         for (int i = 0; i < N; i++)
         {
             _dictInt[keys[i]] = values[i];
         }
-    }
-
-    [IterationCleanup]
-    public void Cleanup()
-    {
-        _tag = new TagCompound();
-        _fnbtTag = new fNbt.NbtCompound();
-        _substrateTag = new Substrate.Nbt.TagNodeCompound();
-        _dictInt = new Dictionary<string, int>();
     }
 }
