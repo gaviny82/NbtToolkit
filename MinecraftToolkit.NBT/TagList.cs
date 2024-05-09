@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt;
 
-public abstract class TagList
+public class TagList<T> : Tag, IList<T> where T : notnull
 {
-    public abstract TagType ItemType { get; }
-}
+    public override TagType Type => TagType.List;
 
-public class TagList<T> : TagList, IList<T> where T : notnull
-{
-    public override TagType ItemType
+    public TagType ItemType
     {
         get
         {
@@ -29,14 +26,12 @@ public class TagList<T> : TagList, IList<T> where T : notnull
                 return TagType.Float;
             else if (typeof(T) == typeof(double))
                 return TagType.Double;
-            else if (typeof(T) == typeof(bool))
-                return TagType.Bool;
             else if (typeof(T) == typeof(string))
                 return TagType.String;
-            else if (typeof(T) == typeof(TagList))
-                return TagType.List;
             else if (typeof(T) == typeof(TagCompound))
                 return TagType.Compound;
+            else if (typeof(T) == typeof(TagList<T>))
+                return TagType.List;
             else if (typeof(T) == typeof(sbyte[]))
                 return TagType.ByteArray;
             else if (typeof(T) == typeof(int[]))
@@ -44,11 +39,12 @@ public class TagList<T> : TagList, IList<T> where T : notnull
             else if (typeof(T) == typeof(long[]))
                 return TagType.LongArray;
             else
-                throw new NotSupportedException($"{typeof(T)} is not a valid type for TagList.");
+                throw new InvalidOperationException($"Cannot determine the type of the list item {typeof(T)}");
         }
     }
 
     private readonly List<T> _items = new();
+
 
     #region IList<T> Implementation
 

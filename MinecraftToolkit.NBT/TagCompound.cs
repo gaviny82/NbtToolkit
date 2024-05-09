@@ -8,75 +8,77 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt;
 
-public class TagCompound : IDictionary<string, TagValue>
+public class TagCompound : Tag, IDictionary<string, Tag>
 {
-    private Dictionary<string, TagValue> _data = new();
+    public override TagType Type => TagType.Compound;
+
+    private Dictionary<string, Tag> _data = new();
 
     public TagCompound()
     {
 
     }
 
-    #region IDictionary<string, TagValue> implementation
+    #region IDictionary<string, Tag> implementation
 
-    public TagValue this[string key] { get => ((IDictionary<string, TagValue>)_data)[key]; set => ((IDictionary<string, TagValue>)_data)[key] = value; }
+    public Tag this[string key] { get => ((IDictionary<string, Tag>)_data)[key]; set => ((IDictionary<string, Tag>)_data)[key] = value; }
 
-    public ICollection<string> Keys => ((IDictionary<string, TagValue>)_data).Keys;
+    public ICollection<string> Keys => ((IDictionary<string, Tag>)_data).Keys;
 
-    public ICollection<TagValue> Values => ((IDictionary<string, TagValue>)_data).Values;
+    public ICollection<Tag> Values => ((IDictionary<string, Tag>)_data).Values;
 
-    public int Count => ((ICollection<KeyValuePair<string, TagValue>>)_data).Count;
+    public int Count => ((ICollection<KeyValuePair<string, Tag>>)_data).Count;
 
-    public bool IsReadOnly => ((ICollection<KeyValuePair<string, TagValue>>)_data).IsReadOnly;
+    public bool IsReadOnly => ((ICollection<KeyValuePair<string, Tag>>)_data).IsReadOnly;
 
-    public void Add(string key, TagValue value)
+    public void Add(string key, Tag value)
     {
-        ((IDictionary<string, TagValue>)_data).Add(key, value);
+        ((IDictionary<string, Tag>)_data).Add(key, value);
     }
 
-    public void Add(KeyValuePair<string, TagValue> item)
+    public void Add(KeyValuePair<string, Tag> item)
     {
-        ((ICollection<KeyValuePair<string, TagValue>>)_data).Add(item);
+        ((ICollection<KeyValuePair<string, Tag>>)_data).Add(item);
     }
 
     public void Clear()
     {
-        ((ICollection<KeyValuePair<string, TagValue>>)_data).Clear();
+        ((ICollection<KeyValuePair<string, Tag>>)_data).Clear();
     }
 
-    public bool Contains(KeyValuePair<string, TagValue> item)
+    public bool Contains(KeyValuePair<string, Tag> item)
     {
-        return ((ICollection<KeyValuePair<string, TagValue>>)_data).Contains(item);
+        return ((ICollection<KeyValuePair<string, Tag>>)_data).Contains(item);
     }
 
     public bool ContainsKey(string key)
     {
-        return ((IDictionary<string, TagValue>)_data).ContainsKey(key);
+        return ((IDictionary<string, Tag>)_data).ContainsKey(key);
     }
 
-    public void CopyTo(KeyValuePair<string, TagValue>[] array, int arrayIndex)
+    public void CopyTo(KeyValuePair<string, Tag>[] array, int arrayIndex)
     {
-        ((ICollection<KeyValuePair<string, TagValue>>)_data).CopyTo(array, arrayIndex);
+        ((ICollection<KeyValuePair<string, Tag>>)_data).CopyTo(array, arrayIndex);
     }
 
-    public IEnumerator<KeyValuePair<string, TagValue>> GetEnumerator()
+    public IEnumerator<KeyValuePair<string, Tag>> GetEnumerator()
     {
-        return ((IEnumerable<KeyValuePair<string, TagValue>>)_data).GetEnumerator();
+        return ((IEnumerable<KeyValuePair<string, Tag>>)_data).GetEnumerator();
     }
 
     public bool Remove(string key)
     {
-        return ((IDictionary<string, TagValue>)_data).Remove(key);
+        return ((IDictionary<string, Tag>)_data).Remove(key);
     }
 
-    public bool Remove(KeyValuePair<string, TagValue> item)
+    public bool Remove(KeyValuePair<string, Tag> item)
     {
-        return ((ICollection<KeyValuePair<string, TagValue>>)_data).Remove(item);
+        return ((ICollection<KeyValuePair<string, Tag>>)_data).Remove(item);
     }
 
-    public bool TryGetValue(string key, [MaybeNullWhen(false)] out TagValue value)
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out Tag value)
     {
-        return ((IDictionary<string, TagValue>)_data).TryGetValue(key, out value);
+        return ((IDictionary<string, Tag>)_data).TryGetValue(key, out value);
     }
 
     IEnumerator IEnumerable.GetEnumerator()
