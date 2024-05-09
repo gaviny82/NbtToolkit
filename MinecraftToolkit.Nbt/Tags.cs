@@ -10,7 +10,7 @@ public class TagByte : Tag
 {
     public override TagType Type => TagType.Int;
 
-    public new sbyte Value { get; set; }
+    public sbyte Value { get; set; }
 
     public TagByte(sbyte value)
     {
@@ -24,7 +24,7 @@ public class TagShort : Tag
 {
     public override TagType Type => TagType.Short;
 
-    public new short Value { get; set; }
+    public short Value { get; set; }
 
     public TagShort(short value)
     {
@@ -39,7 +39,7 @@ public class TagInt : Tag
 {
     public override TagType Type => TagType.Int;
 
-    public new int Value { get; set; }
+    public int Value { get; set; }
 
     public TagInt(int value)
     {
@@ -53,7 +53,7 @@ public class TagLong : Tag
 {
     public override TagType Type => TagType.Long;
 
-    public new long Value { get; set; }
+    public long Value { get; set; }
 
     public TagLong(long value)
     {
@@ -67,7 +67,7 @@ public class TagFloat : Tag
 {
     public override TagType Type => TagType.Float;
 
-    public new float Value { get; set; }
+    public float Value { get; set; }
 
     public TagFloat(float value)
     {
@@ -81,7 +81,7 @@ public class TagDouble : Tag
 {
     public override TagType Type => TagType.Double;
 
-    public new double Value { get; set; }
+    public double Value { get; set; }
 
     public TagDouble(double value)
     {
@@ -95,7 +95,7 @@ public class TagBool : Tag
 {
     public override TagType Type => TagType.Byte;
 
-    public new bool Value { get; set; }
+    public bool Value { get; set; }
 
     public TagBool(bool value)
     {
@@ -109,7 +109,7 @@ public class TagString : Tag
 {
     public override TagType Type => TagType.String;
 
-    public new string Value { get; set; }
+    public string Value { get; set; }
 
     public TagString(string value)
     {
@@ -123,7 +123,7 @@ public class TagByteArray : Tag
 {
     public override TagType Type => TagType.ByteArray;
 
-    public new sbyte[] Value { get; set; }
+    public sbyte[] Value { get; set; }
 
     public TagByteArray(sbyte[] value)
     {
@@ -137,7 +137,7 @@ public class TagIntArray : Tag
 {
     public override TagType Type => TagType.IntArray;
 
-    public new int[] Value { get; set; }
+    public int[] Value { get; set; }
 
     public TagIntArray(int[] value)
     {
@@ -151,7 +151,7 @@ public class TagLongArray : Tag
 {
     public override TagType Type => TagType.LongArray;
 
-    public new long[] Value { get; set; }
+    public long[] Value { get; set; }
 
     public TagLongArray(long[] value)
     {
