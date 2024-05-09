@@ -47,7 +47,7 @@ public class AccessIntTagsBenchmark
         int sum = 0;
         for (int i = 0; i < N; i++)
         {
-            sum += (tag[keys[i]] as TagInt)?.Value ?? 0;
+            sum += tag[keys[i]].AsInt();
         }
         return sum;
     }
