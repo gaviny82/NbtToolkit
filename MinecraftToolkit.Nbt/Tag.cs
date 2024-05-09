@@ -11,24 +11,6 @@ public abstract class Tag
     /// </summary>
     public abstract TagType Type { get; }
 
-    #region Factory Methods
-
-    public static Tag CreateByte(sbyte value) => new TagByte(value);
-    public static Tag CreateShort(short value) => new TagShort(value);
-    public static Tag CreateInt(int value) => new TagInt(value);
-    public static Tag CreateLong(long value) => new TagLong(value);
-    public static Tag CreateFloat(float value) => new TagFloat(value);
-    public static Tag CreateDouble(double value) => new TagDouble(value);
-    public static Tag CreateBool(bool value) => new TagBool(value);
-    public static Tag CreateString(string value) => new TagString(value);
-    public static Tag CreateList<T>() where T: notnull => new TagList<T>();
-    public static Tag CreateCompound() => new TagCompound();
-    public static Tag CreateByteArray(sbyte[] value) => new TagByteArray(value);
-    public static Tag CreateIntArray(int[] value) => new TagIntArray(value);
-    public static Tag CreateLongArray(long[] value) => new TagLongArray(value);
-
-    #endregion
-
     #region Methods for accessing the stored value
 
     /// <summary>

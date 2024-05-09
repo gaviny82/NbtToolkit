@@ -35,7 +35,7 @@ public class CreateIntTagsBenchmark
     {
         for (int i = 0; i < N; i++)
         {
-            _tag[keys[i]] = TagValue.CreateDouble(values[i]);
+            _tag[keys[i]] = new TagInt(values[i]);
         }
     }
 

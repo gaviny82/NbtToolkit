@@ -35,7 +35,7 @@ public class CreateStringTagsBenchmark
     {
         for (int i = 0; i < N; i++)
         {
-            _tag[keys[i]] = TagValue.CreateString(values[i]);
+            _tag[keys[i]] = new TagString(values[i]);
         }
     }
 

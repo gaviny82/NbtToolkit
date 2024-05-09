@@ -34,7 +34,7 @@ public class AccessIntTagsBenchmark
         // Populate the tags
         for (int i = 0; i < N; i++)
         {
-            tag[keys[i]] = values[i];
+            tag[keys[i]] = new TagInt(values[i]);
             fNbt.NbtInt t = new(keys[i], values[i]);
             fnbtTag[keys[i]] = t;
             substrateTag[keys[i]] = new Substrate.Nbt.TagNodeInt(values[i]);
@@ -47,7 +47,7 @@ public class AccessIntTagsBenchmark
         int sum = 0;
         for (int i = 0; i < N; i++)
         {
-            sum += tag[keys[i]].AsInt();
+            sum += (tag[keys[i]] as TagInt)?.Value ?? 0;
         }
         return sum;
     }
