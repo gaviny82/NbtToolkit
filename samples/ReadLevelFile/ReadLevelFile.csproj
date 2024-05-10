@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MinecraftToolkit.Nbt\MinecraftToolkit.Nbt.csproj" />
+    <ProjectReference Include="..\..\MinecraftToolkit.Nbt\MinecraftToolkit.Nbt.csproj" />
   </ItemGroup>
 
 </Project>
