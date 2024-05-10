@@ -43,8 +43,18 @@ public class TagList<T> : Tag, IList<T> where T : notnull
         }
     }
 
-    private readonly List<T> _items = new();
+    private readonly List<T> _items;
 
+    // QUESTION: What's the type of an empty list?
+    public TagList()
+    {
+        _items = new();
+    }
+
+    public TagList(int capacity)
+    {
+        _items = new(capacity);
+    }
 
     #region IList<T> Implementation
 
