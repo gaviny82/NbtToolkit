@@ -79,10 +79,11 @@ public class NbtReader
             };
 
             // Add tag to compound
-            tagCompound.Add(tagName, tag);
+            tagCompound[tagName] = tag;
         } while (true);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal TagId ReadTagId()
     {
         byte tagId = _reader.ReadByte();
@@ -94,11 +95,13 @@ public class NbtReader
         return tagType;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal sbyte ReadByte()
     {
         return (sbyte)_reader.ReadByte();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ushort ReadUShort()
     {
         Span<byte> buffer = stackalloc byte[2];
@@ -108,6 +111,7 @@ public class NbtReader
         return BitConverter.ToUInt16(buffer);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal short ReadShort()
     {
         Span<byte> buffer = stackalloc byte[2];
@@ -117,6 +121,7 @@ public class NbtReader
         return BitConverter.ToInt16(buffer);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal int ReadInt()
     {
         Span<byte> buffer = stackalloc byte[4];
@@ -126,6 +131,7 @@ public class NbtReader
         return BitConverter.ToInt32(buffer);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal long ReadLong()
     {
         Span<byte> buffer = stackalloc byte[8];
@@ -135,6 +141,7 @@ public class NbtReader
         return BitConverter.ToInt64(buffer);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal float ReadFloat()
     {
         Span<byte> buffer = stackalloc byte[4];
@@ -144,6 +151,7 @@ public class NbtReader
         return BitConverter.ToSingle(buffer);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal double ReadDouble()
     {
         Span<byte> buffer = stackalloc byte[8];
@@ -153,6 +161,7 @@ public class NbtReader
         return BitConverter.ToDouble(buffer);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal string ReadString()
     {
         ushort length = ReadUShort();
@@ -161,6 +170,7 @@ public class NbtReader
         return Encoding.UTF8.GetString(_reader.ReadBytes(length));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Tag ReadTagList()
     {
         TagId tagId = ReadTagId();
@@ -238,6 +248,7 @@ public class NbtReader
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal TagByteArray ReadTagByteArray()
     {
         int length = ReadInt();
@@ -246,6 +257,7 @@ public class NbtReader
         return new TagByteArray(data);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal TagIntArray ReadTagIntArray()
     {
         int length = ReadInt();
@@ -261,6 +273,7 @@ public class NbtReader
         return new TagIntArray(data);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal TagLongArray ReadTagLongArray()
     {
         int length = ReadInt();
