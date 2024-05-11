@@ -17,4 +17,12 @@
     <ProjectReference Include="..\libs\Substrate\Substrate\Substrate.csproj" />
   </ItemGroup>
 
+  <!-- Copy sample files for testing to output directory -->
+  <ItemGroup>
+    <Content Include=".\sample-files\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>sample-files\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
 </Project>
