@@ -3,7 +3,7 @@
 namespace MinecraftToolkit.Nbt.Benchmark;
 
 [MemoryDiagnoser(false)]
-public class CreateStringTagsBenchmark
+public class CreateStringTags
 {
     [Params(1000, 10000)]
     public int N { get; set; }
@@ -31,7 +31,7 @@ public class CreateStringTagsBenchmark
     }
 
     [Benchmark(Baseline = true)]
-    public void CreateStringTags()
+    public void CreateStringTags_MCT()
     {
         for (int i = 0; i < N; i++)
         {

@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 namespace MinecraftToolkit.Nbt.Benchmark;
 
 [MemoryDiagnoser]
-public class ParseLevelFile
+public class ParseLevelDatFile
 {
-    const string LevelFile = @"C:\Users\jinch\Saved Games\Minecraft\.minecraft\saves\Test\level.dat";
+    const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
     private byte[] _levelFileBytes = null!;
     private MemoryStream _levelFileStream = null!;
 
@@ -36,7 +36,7 @@ public class ParseLevelFile
     }
 
     [Benchmark(Baseline = true)]
-    public TagCompound Parse()
+    public TagCompound Parse_MCT()
     {
         var reader = new NbtReader(_levelFileStream, NbtCompression.GZip);
         return reader.ReadRootTag();

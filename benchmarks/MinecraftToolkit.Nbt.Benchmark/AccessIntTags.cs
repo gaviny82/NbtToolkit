@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt.Benchmark;
 
-public class AccessIntTagsBenchmark
+public class AccessIntTags
 {
     [Params(1000, 10000)]
     public int N { get; set; }
@@ -42,7 +42,7 @@ public class AccessIntTagsBenchmark
     }
 
     [Benchmark(Baseline = true)]
-    public int AccessIntTags()
+    public int AccessIntTags_MCT()
     {
         int sum = 0;
         for (int i = 0; i < N; i++)
