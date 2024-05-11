@@ -91,6 +91,7 @@ public class TagDouble : Tag
     public static implicit operator TagDouble(double value) => new TagDouble(value);
 }
 
+// TODO: remove this class
 public class TagBool : Tag
 {
     public override TagType Type => TagType.Byte;

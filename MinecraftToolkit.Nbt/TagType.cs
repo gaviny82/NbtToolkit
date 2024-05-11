@@ -17,7 +17,6 @@ public enum TagType
     Long,
     Float,
     Double,
-    Bool,
     String,
     List,
     Compound,

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MinecraftToolkit.Nbt.Parsing;
+using System;
 using System.Collections;
 using System.Linq;
 using System.Text;
@@ -6,11 +7,38 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt;
 
-public class TagList<T> : Tag, IList<T> where T : notnull
+/// <summary>
+/// Base class for all list tags
+/// </summary>
+public abstract class TagList : Tag // TODO: Implement IList<Tag>
 {
     public override TagType Type => TagType.List;
 
-    public TagType ItemType
+    public abstract TagType ItemType { get; }
+    public abstract int Capacity { get; }
+    public abstract int Count { get; }
+
+    internal TagId ItemId => ItemType switch
+    {
+        TagType.Byte => TagId.Byte,
+        TagType.Short => TagId.Short,
+        TagType.Int => TagId.Int,
+        TagType.Long => TagId.Long,
+        TagType.Float => TagId.Float,
+        TagType.Double => TagId.Double,
+        TagType.String => TagId.String,
+        TagType.Compound => TagId.Compound,
+        TagType.List => TagId.List,
+        TagType.ByteArray => TagId.ByteArray,
+        TagType.IntArray => TagId.IntArray,
+        TagType.LongArray => TagId.LongArray,
+        _ => throw new InvalidOperationException($"Invalid TagType value: {ItemType}")
+    };
+}
+
+public sealed class TagList<T> : TagList, IList<T> where T : notnull
+{
+    public override TagType ItemType
     {
         get
         {
@@ -42,6 +70,7 @@ public class TagList<T> : Tag, IList<T> where T : notnull
                 throw new InvalidOperationException($"Cannot determine the type of the list item {typeof(T)}");
         }
     }
+    public override int Capacity => _items.Capacity;
 
     private readonly List<T> _items;
 
@@ -59,7 +88,7 @@ public class TagList<T> : Tag, IList<T> where T : notnull
     #region IList<T> Implementation
 
     /// <inheritdoc/>
-    public int Count => _items.Count;
+    public override int Count => _items.Count; // TODO: Fix this, make it consistent with the base class for IList
 
     /// <inheritdoc/>
     public bool IsReadOnly => false;
