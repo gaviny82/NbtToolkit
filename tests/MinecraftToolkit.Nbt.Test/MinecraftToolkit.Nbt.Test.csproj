@@ -23,7 +23,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MinecraftToolkit.Nbt\MinecraftToolkit.Nbt.csproj" />
+    <ProjectReference Include="..\..\MinecraftToolkit.Nbt\MinecraftToolkit.Nbt.csproj" />
+  </ItemGroup>
+
+  <!-- Copy sample files for testing to output directory -->
+  <ItemGroup>
+    <Content Include=".\sample-files\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>sample-files\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
 
 </Project>

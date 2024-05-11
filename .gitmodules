@@ -4,3 +4,6 @@
 [submodule "benchmarks/libs/fNbt"]
 	path = benchmarks/libs/fNbt
 	url = https://github.com/mstefarov/fNbt.git
+[submodule "sample-files"]
+	path = sample-files
+	url = https://github.com/gaviny82/MinecraftToolkit.Nbt.SampleFiles.git
