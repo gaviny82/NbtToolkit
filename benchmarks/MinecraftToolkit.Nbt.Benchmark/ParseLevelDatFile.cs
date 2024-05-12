@@ -13,48 +13,49 @@ namespace MinecraftToolkit.Nbt.Benchmark;
 [MemoryDiagnoser]
 public class ParseLevelDatFile
 {
-    const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
-    private byte[] _levelFileBytes = null!;
-    private MemoryStream _levelFileStream = null!;
+    //[Params(100)]
+    public int N { get; set; }
+
+    private const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
+
+    private MemoryStream _stream = null!;
 
     [GlobalSetup]
     public void GlobalSetup()
     {
-        _levelFileBytes = File.ReadAllBytes(LevelFile);
+        var levelFileBytes = File.ReadAllBytes(LevelFile);
+        _stream = new MemoryStream(levelFileBytes);
     }
 
-    [IterationSetup]
-    public void Setup()
+    [GlobalCleanup]
+    public void GlobalCleanup()
     {
-        _levelFileStream = new MemoryStream(_levelFileBytes);
-    }
-
-    [IterationCleanup]
-    public void Cleanup()
-    {
-        _levelFileStream.Dispose();
+        _stream.Dispose();
     }
 
     [Benchmark(Baseline = true)]
     public TagCompound Parse_MCT()
     {
-        using var reader = new NbtReader(_levelFileStream, NbtCompression.GZip);
+        _stream.Position = 0;
+        using var reader = new NbtReader(_stream, NbtCompression.GZip, true);
         return reader.ReadRootTag();
     }
 
     [Benchmark]
     public fNbt.NbtCompound Parse_fNbt()
     {
+        _stream.Position = 0;
         fNbt.NbtFile file = new fNbt.NbtFile();
-        file.LoadFromStream(_levelFileStream, fNbt.NbtCompression.GZip);
+        file.LoadFromStream(_stream, fNbt.NbtCompression.GZip);
         return file.RootTag;
     }
 
     [Benchmark]
     public Substrate.Nbt.TagNodeCompound Parse_Substrate()
     {
+        _stream.Position = 0;
         Substrate.Nbt.NbtTree tree = new();
-        tree.ReadFrom(new GZipStream(_levelFileStream, CompressionMode.Decompress));
+        tree.ReadFrom(new GZipStream(_stream, CompressionMode.Decompress));
         return tree.Root;
     }
 }

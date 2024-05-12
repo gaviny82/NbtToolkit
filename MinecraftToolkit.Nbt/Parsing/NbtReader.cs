@@ -16,7 +16,7 @@ public class NbtReader : IDisposable
     private BinaryReader _reader;
     private static bool s_needsReversedByteOrder = BitConverter.IsLittleEndian;
 
-    public NbtReader(Stream stream, NbtCompression compression = NbtCompression.None)
+    public NbtReader(Stream stream, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
         Stream = compression switch
         {
@@ -26,7 +26,7 @@ public class NbtReader : IDisposable
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
 
-        _reader = new BinaryReader(Stream, Encoding.UTF8);
+        _reader = new BinaryReader(Stream, Encoding.UTF8, leaveOpen);
     }
 
     public TagCompound ReadRootTag()
@@ -435,6 +435,6 @@ public class NbtReader : IDisposable
 
     public void Dispose()
     {
-        _reader.Dispose();
+        _reader.Dispose(); // Whether to dispose the underlying stream is handled by the BinaryReader
     }
 }
