@@ -38,7 +38,7 @@ public class ParseLevelDatFile
     [Benchmark(Baseline = true)]
     public TagCompound Parse_MCT()
     {
-        var reader = new NbtReader(_levelFileStream, NbtCompression.GZip);
+        using var reader = new NbtReader(_levelFileStream, NbtCompression.GZip);
         return reader.ReadRootTag();
     }
 
