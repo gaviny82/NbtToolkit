@@ -10,52 +10,60 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt.Benchmark;
 
-[MemoryDiagnoser]
+[MemoryDiagnoser(false)]
 public class ParseLevelDatFile
 {
-    //[Params(100)]
-    public int N { get; set; }
-
     private const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
-
     private MemoryStream _stream = null!;
+
+    private NbtReader _nbtReaderMct = null!;
+    private fNbt.NbtFile _nbtFilefNbt = null!;
+    private Substrate.Nbt.NbtTree _nbtTreeSubstrate = null!;
 
     [GlobalSetup]
     public void GlobalSetup()
     {
-        var levelFileBytes = File.ReadAllBytes(LevelFile);
-        _stream = new MemoryStream(levelFileBytes);
+        // Decompress the file and store it in memory
+        using var fileStream = new FileStream(LevelFile, FileMode.Open, FileAccess.Read);
+        using var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress);
+        using var memoryStream = new MemoryStream();
+        gzipStream.CopyTo(memoryStream);
+        byte[] bytes = memoryStream.ToArray();
+
+        // Create a stream from the decompressed bytes
+        _stream = new MemoryStream(bytes);
+
+        // Prepare parsers
+        _nbtReaderMct = new NbtReader(_stream, NbtCompression.None, true);
+        _nbtFilefNbt = new fNbt.NbtFile();
+        _nbtTreeSubstrate = new Substrate.Nbt.NbtTree();
     }
 
     [GlobalCleanup]
     public void GlobalCleanup()
     {
         _stream.Dispose();
+        _nbtReaderMct.Dispose();
     }
 
     [Benchmark(Baseline = true)]
-    public TagCompound Parse_MCT()
+    public void Parse_MCT()
     {
         _stream.Position = 0;
-        using var reader = new NbtReader(_stream, NbtCompression.GZip, true);
-        return reader.ReadRootTag();
+        _nbtReaderMct.ReadRootTag();
     }
 
     [Benchmark]
-    public fNbt.NbtCompound Parse_fNbt()
+    public void Parse_fNbt()
     {
         _stream.Position = 0;
-        fNbt.NbtFile file = new fNbt.NbtFile();
-        file.LoadFromStream(_stream, fNbt.NbtCompression.GZip);
-        return file.RootTag;
+        _nbtFilefNbt.LoadFromStream(_stream, fNbt.NbtCompression.None);
     }
 
     [Benchmark]
-    public Substrate.Nbt.TagNodeCompound Parse_Substrate()
+    public void Parse_Substrate()
     {
         _stream.Position = 0;
-        Substrate.Nbt.NbtTree tree = new();
-        tree.ReadFrom(new GZipStream(_stream, CompressionMode.Decompress));
-        return tree.Root;
+        _nbtTreeSubstrate.ReadFrom(_stream);
     }
 }
