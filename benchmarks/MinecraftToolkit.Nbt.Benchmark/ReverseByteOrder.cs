@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -49,7 +50,7 @@ public class ReverseByteOrder
         }
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public void ReverseBytes_SpanReverse()
     {
         Span<byte> buffer = stackalloc byte[4];
@@ -68,15 +69,22 @@ public class ReverseByteOrder
         for (int i = 0; i < N; i++)
         {
             _stream.Position = 0;
+            uint v = (uint)_reader.ReadInt32();
+            _value = (int)((v >> 24) /* & 0x000000FF */ |
+                           (v >> 8) & 0x0000FF00 |
+                           (v << 8) & 0x00FF0000 |
+                           (v << 24) /* & 0xFF000000 */);
+        }
+    }
+
+    [Benchmark]
+    public void ReverseBytes_BuiltIn()
+    {
+       for (int i = 0; i < N; i++)
+        {
+            _stream.Position = 0;
             int v = _reader.ReadInt32();
-            unchecked
-            {
-                var v2 = (uint)v;
-                _value = (int)((v2 >> 24) & 0x000000FF |
-                             (v2 >> 8) & 0x0000FF00 |
-                             (v2 << 8) & 0x00FF0000 |
-                             (v2 << 24) & 0xFF000000);
-            }
+            _value = BinaryPrimitives.ReverseEndianness(v);
         }
     }
 }

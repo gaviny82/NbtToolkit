@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,7 +16,7 @@ public class NbtReader : IDisposable
     public Stream Stream { get; init; }
 
     private BinaryReader _reader;
-    private static bool s_needsReversedByteOrder = BitConverter.IsLittleEndian;
+    private static bool s_needsReversedEndianness = BitConverter.IsLittleEndian;
 
     public NbtReader(Stream stream, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
@@ -32,13 +34,13 @@ public class NbtReader : IDisposable
     public TagCompound ReadRootTag()
     {
         Span<byte> valueBuffer = stackalloc byte[8];
-        NbtReaderInternal nbtReader = new(ref valueBuffer);
+        NbtReaderInternal nbtReader = new();
 
         // Read root tag ID and name
         TagId tagId = ReadTagId();
         if (tagId != TagId.Compound)
             throw new InvalidDataException($"Invalid root tag ID {tagId}");
-        string tagName = ReadString(ref valueBuffer);
+        string tagName = ReadString();
         if (tagName != "")
             throw new InvalidDataException($"Invalid root tag name {tagName}");
 
@@ -93,7 +95,7 @@ public class NbtReader : IDisposable
                 {
                     // Read list tag ID and length
                     TagId listTagId = ReadTagId();
-                    int listLength = ReadInt(ref valueBuffer);
+                    int listLength = ReadInt();
 
                     // Check for invalid and emtpy list
                     if (listLength < 0)
@@ -165,7 +167,7 @@ public class NbtReader : IDisposable
                 // Read tag name length as big-endian ushort (2 bytes)
 
                 // Read tag name as UTF-8 string
-                tagName = ReadString(ref valueBuffer);
+                tagName = ReadString();
 
                 // Read tag payload
 
@@ -184,7 +186,7 @@ public class NbtReader : IDisposable
                 {
                     // Read list tag ID and length
                     TagId listTagId = ReadTagId();
-                    int length = ReadInt(ref valueBuffer);
+                    int length = ReadInt();
 
                     // Check for invalid and emtpy list
                     if (length < 0)
@@ -220,15 +222,15 @@ public class NbtReader : IDisposable
                 Tag tag = tagId switch
                 {
                     TagId.Byte => new TagByte(ReadByte()),
-                    TagId.Short => new TagShort(ReadShort(ref valueBuffer)),
-                    TagId.Int => new TagInt(ReadInt(ref valueBuffer)),
-                    TagId.Long => new TagLong(ReadLong(ref valueBuffer)),
-                    TagId.Float => new TagFloat(ReadFloat(ref valueBuffer)),
-                    TagId.Double => new TagDouble(ReadDouble(ref valueBuffer)),
-                    TagId.ByteArray => ReadTagByteArray(ref valueBuffer),
-                    TagId.String => new TagString(ReadString(ref valueBuffer)),
-                    TagId.IntArray => ReadTagIntArray(ref valueBuffer),
-                    TagId.LongArray => ReadTagLongArray(ref valueBuffer),
+                    TagId.Short => new TagShort(ReadShort()),
+                    TagId.Int => new TagInt(ReadInt()),
+                    TagId.Long => new TagLong(ReadLong()),
+                    TagId.Float => new TagFloat(ReadFloat()),
+                    TagId.Double => new TagDouble(ReadDouble()),
+                    TagId.ByteArray => ReadTagByteArray(),
+                    TagId.String => new TagString(ReadString()),
+                    TagId.IntArray => ReadTagIntArray(),
+                    TagId.LongArray => ReadTagLongArray(),
                     _ => throw new InvalidDataException($"Invalid tag ID {tagId}")
                 };
 
@@ -255,6 +257,8 @@ public class NbtReader : IDisposable
         return tagType;
     }
 
+    #region Read values with endianness conversion
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal sbyte ReadByte()
     {
@@ -262,109 +266,112 @@ public class NbtReader : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal ushort ReadUShort(ref Span<byte> valueBuffer)
+    internal ushort ReadUShort()
     {
-        Span<byte> buffer = valueBuffer[0..2];
-        _reader.Read(buffer);
-        if (s_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToUInt16(buffer);
+        ushort value = _reader.ReadUInt16();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal short ReadShort(ref Span<byte> valueBuffer)
+    internal short ReadShort()
     {
-        Span<byte> buffer = valueBuffer[0..2];
-        _reader.Read(buffer);
-        if (s_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToInt16(buffer);
+        short value = _reader.ReadInt16();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal int ReadInt(ref Span<byte> valueBuffer)
+    internal int ReadInt()
     {
-        Span<byte> buffer = valueBuffer[0..4];
-        _reader.Read(buffer);
-        if (s_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToInt32(buffer);
+        int value = _reader.ReadInt32();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal long ReadLong(ref Span<byte> valueBuffer)
+    internal long ReadLong()
     {
-        _reader.Read(valueBuffer);
-        if (s_needsReversedByteOrder)
-            valueBuffer.Reverse();
-        return BitConverter.ToInt64(valueBuffer);
+        long value = _reader.ReadInt64();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal float ReadFloat(ref Span<byte> valueBuffer)
+    internal float ReadFloat()
     {
-        Span<byte> buffer = valueBuffer[0..4];
-        _reader.Read(buffer);
-        if (s_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToSingle(buffer);
+        float value = _reader.ReadSingle();
+        if (s_needsReversedEndianness)
+        {
+            uint bits = Unsafe.As<float, uint>(ref value);
+            value = BinaryPrimitives.ReverseEndianness(bits);
+        }
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal double ReadDouble(ref Span<byte> valueBuffer)
+    internal double ReadDouble()
     {
-        _reader.Read(valueBuffer);
-        if (s_needsReversedByteOrder)
-            valueBuffer.Reverse();
-        return BitConverter.ToDouble(valueBuffer);
+        double value = _reader.ReadDouble();
+        if (s_needsReversedEndianness)
+        {
+            ulong bits = Unsafe.As<double, ulong>(ref value);
+            value = BinaryPrimitives.ReverseEndianness(bits);
+        }
+        return value;
     }
 
+    #endregion
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal string ReadString(ref Span<byte> valueBuffer)
+    internal string ReadString()
     {
-        ushort length = ReadUShort(ref valueBuffer);
+        ushort length = ReadUShort();
         // The number of characters in the string is unknown due to the UTF-8 encoding, so string.Create<T> cannot be used
         // TODO: Use modified UTF-8 encoding
         return Encoding.UTF8.GetString(_reader.ReadBytes(length));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagByteArray ReadTagByteArray(ref Span<byte> valueBuffer)
+    internal TagByteArray ReadTagByteArray()
     {
-        int length = ReadInt(ref valueBuffer);
+        int length = ReadInt();
         sbyte[] data = new sbyte[length];
         _reader.Read(Unsafe.As<byte[]>(data), 0, length);
         return new TagByteArray(data);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagIntArray ReadTagIntArray(ref Span<byte> valueBuffer)
+    internal TagIntArray ReadTagIntArray()
     {
-        int length = ReadInt(ref valueBuffer);
+        int length = ReadInt();
         int[] data = new int[length];
-        Span<byte> buffer = stackalloc byte[4];
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < length; i++) // TODO: Use BinaryPrimitives.ReverseEndianness for the entire array
         {
-            _reader.Read(buffer);
-            if (s_needsReversedByteOrder)
-                buffer.Reverse();
-            data[i] = BitConverter.ToInt32(buffer);
+            int value = ReadInt();
+            if (s_needsReversedEndianness)
+                value = BinaryPrimitives.ReverseEndianness(value);
+            data[i] = value;
         }
         return new TagIntArray(data);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagLongArray ReadTagLongArray(ref Span<byte> valueBuffer)
+    internal TagLongArray ReadTagLongArray()
     {
-        int length = ReadInt(ref valueBuffer);
+        int length = ReadInt();
         long[] data = new long[length];
         Span<byte> buffer = stackalloc byte[8];
         for (int i = 0; i < length; i++)
         {
-            _reader.Read(buffer);
-            if (s_needsReversedByteOrder)
-                buffer.Reverse();
-            data[i] = BitConverter.ToInt64(buffer);
+            long value = _reader.ReadInt64();
+            if (s_needsReversedEndianness)
+                value = BinaryPrimitives.ReverseEndianness(value);
+            data[i] = value;
         }
         return new TagLongArray(data);
     }
@@ -384,37 +391,37 @@ public class NbtReader : IDisposable
             case TagId.Short:
                 TagList<short> shorts = new(length);
                 for (int i = 0; i < length; i++)
-                    shorts.Add(ReadShort(ref valueBuffer));
+                    shorts.Add(ReadShort());
                 return shorts;
             case TagId.Int:
                 TagList<int> ints = new(length);
                 for (int i = 0; i < length; i++)
-                    ints.Add(ReadInt(ref valueBuffer));
+                    ints.Add(ReadInt());
                 return ints;
             case TagId.Long:
                 TagList<long> longs = new(length);
                 for (int i = 0; i < length; i++)
-                    longs.Add(ReadLong(ref valueBuffer));
+                    longs.Add(ReadLong());
                 return longs;
             case TagId.Float:
                 TagList<float> floats = new(length);
                 for (int i = 0; i < length; i++)
-                    floats.Add(ReadFloat(ref valueBuffer));
+                    floats.Add(ReadFloat());
                 return floats;
             case TagId.Double:
                 TagList<double> doubles = new(length);
                 for (int i = 0; i < length; i++)
-                    doubles.Add(ReadDouble(ref valueBuffer));
+                    doubles.Add(ReadDouble());
                 return doubles;
             case TagId.ByteArray:
                 TagList<TagByteArray> byteArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    byteArrays.Add(ReadTagByteArray(ref valueBuffer));
+                    byteArrays.Add(ReadTagByteArray());
                 return byteArrays;
             case TagId.String:
                 TagList<string> strings = new(length);
                 for (int i = 0; i < length; i++)
-                    strings.Add(ReadString(ref valueBuffer));
+                    strings.Add(ReadString());
                 return strings;
             case TagId.Compound:
                 TagList<TagCompound> compounds = new(length);
@@ -427,12 +434,12 @@ public class NbtReader : IDisposable
             case TagId.IntArray:
                 TagList<TagIntArray> intArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    intArrays.Add(ReadTagIntArray(ref valueBuffer));
+                    intArrays.Add(ReadTagIntArray());
                 return intArrays;
             case TagId.LongArray:
                 TagList<TagLongArray> longArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    longArrays.Add(ReadTagLongArray(ref valueBuffer));
+                    longArrays.Add(ReadTagLongArray());
                 return longArrays;
             default:
                 throw new InvalidDataException($"Invalid TAG_List item ID: {itemId}");
