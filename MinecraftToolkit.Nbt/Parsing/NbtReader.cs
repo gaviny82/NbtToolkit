@@ -325,6 +325,39 @@ public class NbtReader : IDisposable
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TagByteArray ReadTagByteArray()
+    {
+        int length = ReadInt();
+        sbyte[] data = new sbyte[length];
+        _reader.Read(MemoryMarshal.AsBytes<sbyte>(data));
+        return new TagByteArray(data);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TagIntArray ReadTagIntArray()
+    {
+        int length = ReadInt();
+        int[] data = new int[length];
+        _reader.Read(MemoryMarshal.AsBytes<int>(data));
+
+        if (s_needsReversedEndianness)
+            BinaryPrimitives.ReverseEndianness(data, data);
+
+        return new TagIntArray(data);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TagLongArray ReadTagLongArray()
+    {
+        int length = ReadInt();
+        long[] data = new long[length];
+        _reader.Read(MemoryMarshal.AsBytes<long>(data));
+        if (s_needsReversedEndianness)
+            BinaryPrimitives.ReverseEndianness(data, data);
+        return new TagLongArray(data);
+    }
+
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -334,46 +367,6 @@ public class NbtReader : IDisposable
         // The number of characters in the string is unknown due to the UTF-8 encoding, so string.Create<T> cannot be used
         // TODO: Use modified UTF-8 encoding
         return Encoding.UTF8.GetString(_reader.ReadBytes(length));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagByteArray ReadTagByteArray()
-    {
-        int length = ReadInt();
-        sbyte[] data = new sbyte[length];
-        _reader.Read(Unsafe.As<byte[]>(data), 0, length);
-        return new TagByteArray(data);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagIntArray ReadTagIntArray()
-    {
-        int length = ReadInt();
-        int[] data = new int[length];
-        for (int i = 0; i < length; i++) // TODO: Use BinaryPrimitives.ReverseEndianness for the entire array
-        {
-            int value = ReadInt();
-            if (s_needsReversedEndianness)
-                value = BinaryPrimitives.ReverseEndianness(value);
-            data[i] = value;
-        }
-        return new TagIntArray(data);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagLongArray ReadTagLongArray()
-    {
-        int length = ReadInt();
-        long[] data = new long[length];
-        Span<byte> buffer = stackalloc byte[8];
-        for (int i = 0; i < length; i++)
-        {
-            long value = _reader.ReadInt64();
-            if (s_needsReversedEndianness)
-                value = BinaryPrimitives.ReverseEndianness(value);
-            data[i] = value;
-        }
-        return new TagLongArray(data);
     }
 
     internal TagList InitializeTagList(TagId itemId, int length, ref Span<byte> valueBuffer, out bool isCompleted)
