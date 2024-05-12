@@ -45,18 +45,18 @@ public class NbtReader : IDisposable
         // Start the state machine
         Stack<(Tag, string?)> stack = new(); // Stack of compound or list tags (string is the name of currentTag if the parent tag is TagCompound)
         Tag currentTag = new TagCompound(); // Start with an empty compound tag for the root tag
-        stack.Push((currentTag, tagName)); // Push the root tag onto the stack
+        //stack.Push((currentTag, tagName)); // Push the root tag onto the stack
         nbtReader.State = NbtReaderState.ParsingTagCompound;
         while (true)
         {
-            if (stack.Count == 0)
-                break;
-
             if (nbtReader.State == NbtReaderState.ParsingTagList)
             {
                 // Pop stack when the current TAG_List is finished
                 if (nbtReader.ListRemainingLength == 0)
                 {
+                    if (stack.Count == 0)
+                        break;
+
                     TagList currentList = (TagList)currentTag;
                     (Tag t, string? n) = stack.Pop();
                     if (t is TagCompound tagCompound) // Finish parsing TagList in a TagCompound
@@ -70,15 +70,8 @@ public class NbtReader : IDisposable
                     {
                         tagListList.Add(currentList);
                         currentTag = t;
-                        nbtReader.ListTagId = tagListList.ItemId; // Restore the list tag ID of the parent list tag
+                        nbtReader.ListItemId = tagListList.ItemId; // Restore the list tag ID of the parent list tag
                         nbtReader.ListRemainingLength = currentList.Capacity - currentList.Count; // Restore the list length of the parent list tag
-                        // Stay in the state for parsing TagList
-                        continue;
-                    }
-                    else if (t is TagList tagListSimple) // Finish parsing a TagList of simple tags or a TagList<TagCompound>
-                    {
-                        currentTag = t;
-                        nbtReader.ListTagId = tagListSimple.ItemId; // Restore the list tag ID of the parent list tag
                         // Stay in the state for parsing TagList
                         continue;
                     }
@@ -89,126 +82,48 @@ public class NbtReader : IDisposable
                 }
 
                 // Parse the next list element while nbtReader.ListLength != 0
-                if (nbtReader.ListTagId == TagId.Compound) // TagCompound in a TagList<TagCompound>
+                if (nbtReader.ListItemId == TagId.Compound) // TagCompound in a TagList<TagCompound>
                 {
-                    // TODO: Move this to branch of parsing TagCompound
-                    if (currentTag is TagCompound tagCompound)
-                    {
-                        stack.Push((currentTag, tagName));
-                    }
-                    else if (currentTag is TagList<TagCompound> tagListCompound)
-                    {
-                        stack.Push((currentTag, null));
-                    }
-                    else
-                    {
-                        throw new InvalidDataException($"Invalid parent tag type {currentTag.GetType()}");
-                    }
+                    stack.Push((currentTag, null)); // currentTag is a TagList<TagCompound>
                     currentTag = new TagCompound();
                     nbtReader.State = NbtReaderState.ParsingTagCompound; // Transition to the state for parsing TagCompound
                     continue;
                 }
-                if (nbtReader.ListTagId == TagId.List) // TagList in a TagList<TagList>
+                if (nbtReader.ListItemId == TagId.List) // TagList in a TagList<TagList>
                 {
-                    stack.Push((currentTag, null));
                     // Read list tag ID and length
                     TagId listTagId = ReadTagId();
                     int listLength = ReadInt(ref valueBuffer);
+
+                    // Check for invalid and emtpy list
                     if (listLength < 0)
                         throw new InvalidDataException($"Invalid TAG_LIST length {listLength}");
                     if (listLength == 0) // Empty list may be represented as a list of TAG_Byte or TAG_End rather than a list of the correct type
                     {
                         // TODO: Create TagList<T> for the correct type
                         TagList<TagList> tagListList = (TagList<TagList>)currentTag;
-                        tagListList[tagListList.Capacity - nbtReader.ListRemainingLength] = new TagList<Tag>(); // QUESTION: Consider using a global singleton for empty lists?
+                        tagListList.Add(new TagList<Tag>()); // QUESTION: Consider using a global singleton for empty lists?
                         continue; // No need to push stack
                     }
 
-                    // Push the current tag onto the stack and start parsing the TagList
-                    nbtReader.State = NbtReaderState.ParsingTagList; // Remain in the state for parsing TagList
-                    nbtReader.ListTagId = listTagId;
-                    nbtReader.ListRemainingLength = listLength;
-                    continue;
-                }
+                    // Initialize the TagList
+                    TagList tagList = InitializeTagList(listTagId, listLength, ref valueBuffer, out bool isCompleted);
 
-                // Other simple tags // Consider moving this part to a separate method and call it in the branch for parsing TagCompound
-                int length = nbtReader.ListRemainingLength;
-                switch (nbtReader.ListTagId)
-                {
-                    case TagId.End:
-                        throw new InvalidDataException("Invalid TAG_LIST tag ID End");
-                    case TagId.Byte:
-                        TagList<sbyte> sbytes = new(length);
-                        for (int i = 0; i < length; i++)
-                            sbytes.Add(ReadByte());
-                        currentTag = sbytes;
-                        nbtReader.ListRemainingLength = 0;
+                    if (isCompleted) // TagList<simple tags>
+                    {
+                        ((TagList<TagList>)currentTag).Add(tagList);
+                        nbtReader.ListRemainingLength--; // Decrement the list length of the current list tag
                         continue;
-                    case TagId.Short:
-                        TagList<short> shorts = new(length);
-                        for (int i = 0; i < length; i++)
-                            shorts.Add(ReadShort(ref valueBuffer));
-                        currentTag = shorts;
-                        nbtReader.ListRemainingLength = 0;
+                    }
+                    else
+                    {
+                        // Push the current tag onto the stack and start parsing a TagList<TagCompound> or TagList<TagList>
+                        stack.Push((currentTag, null)); // currentTag is a TagList<TagList>
+                        nbtReader.State = NbtReaderState.ParsingTagList;
+                        nbtReader.ListItemId = listTagId;
+                        nbtReader.ListRemainingLength = listLength;
                         continue;
-                    case TagId.Int:
-                        TagList<int> ints = new(length);
-                        for (int i = 0; i < length; i++)
-                            ints.Add(ReadInt(ref valueBuffer));
-                        currentTag = ints;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    case TagId.Long:
-                        TagList<long> longs = new(length);
-                        for (int i = 0; i < length; i++)
-                            longs.Add(ReadLong(ref valueBuffer));
-                        currentTag = longs;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    case TagId.Float:
-                        TagList<float> floats = new(length);
-                        for (int i = 0; i < length; i++)
-                            floats.Add(ReadFloat(ref valueBuffer));
-                        currentTag = floats;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    case TagId.Double:
-                        TagList<double> doubles = new(length);
-                        for (int i = 0; i < length; i++)
-                            doubles.Add(ReadDouble(ref valueBuffer));
-                        currentTag = doubles;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    case TagId.ByteArray:
-                        TagList<TagByteArray> byteArrays = new(length);
-                        for (int i = 0; i < length; i++)
-                            byteArrays.Add(ReadTagByteArray(ref valueBuffer));
-                        currentTag = byteArrays;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    case TagId.String:
-                        TagList<string> strings = new(length);
-                        for (int i = 0; i < length; i++)
-                            strings.Add(ReadString(ref valueBuffer));
-                        currentTag = strings;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    case TagId.IntArray:
-                        TagList<TagIntArray> intArrays = new(length);
-                        for (int i = 0; i < length; i++)
-                            intArrays.Add(ReadTagIntArray(ref valueBuffer));
-                        currentTag = intArrays;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    case TagId.LongArray:
-                        TagList<TagLongArray> longArrays = new(length);
-                        for (int i = 0; i < length; i++)
-                            longArrays.Add(ReadTagLongArray(ref valueBuffer));
-                        currentTag = longArrays;
-                        nbtReader.ListRemainingLength = 0;
-                        continue;
-                    default:
-                        throw new InvalidDataException($"Invalid tag ID {tagId}");
+                    }
                 }
             }
             else if (nbtReader.State == NbtReaderState.ParsingTagCompound)
@@ -218,6 +133,9 @@ public class NbtReader : IDisposable
 
                 if (tagId == TagId.End) // End of the current compound tag
                 {
+                    if (stack.Count == 0)
+                        break;
+
                     // Pop the stack
                     (Tag t, string? n) = stack.Pop();
                     if (t is TagCompound tagCompound) // Finish parsing a TagCompound in a TagCompound
@@ -226,11 +144,16 @@ public class NbtReader : IDisposable
                         currentTag = t;
                         continue;
                     }
-                    else if (t is TagList<TagCompound> tagListCompound) // Finish parsing a TagCompound in a TagList
+                    else if (t is TagList<TagCompound> tagListCompound) // Finish parsing a single TagCompound in a TagList<TagCompound>
                     {
+                        // QUESTION: For TagList<TagCompound>, can we avoid switching between states for ParsingTagCompound and ParsingTagList?
                         tagListCompound.Add((TagCompound)currentTag);
+
+                        // Transition to the state for parsing TagList
+                        nbtReader.ListRemainingLength = tagListCompound.Capacity - tagListCompound.Count;
+                        nbtReader.State = NbtReaderState.ParsingTagList;
+                        nbtReader.ListItemId = TagId.Compound;
                         currentTag = t;
-                        nbtReader.ListRemainingLength--; // Decrement the list length of the parent list tag
                         continue;
                     }
                     else // Impossible case
@@ -255,7 +178,8 @@ public class NbtReader : IDisposable
                     continue;
                 }
 
-                // Push the current tag onto the stack for parsing a TagList (if needed)
+                // Either read the payload of a TAG_List (for TagList<simple tags>),
+                // or push the current TAG_Compound onto the stack and transition to the state for parsing a TAG_List (for TagList<TagCompound> or TagList<TagList>)
                 if (tagId == TagId.List)
                 {
                     // Read list tag ID and length
@@ -264,7 +188,7 @@ public class NbtReader : IDisposable
 
                     // Check for invalid and emtpy list
                     if (length < 0)
-                        throw new InvalidDataException($"Invalid TAG_LIST length {length}");
+                        throw new InvalidDataException($"Invalid TAG_LIST length: {length}");
                     if (length == 0) // Empty list may be represented as a list of TAG_Byte or TAG_End rather than a list of the correct type
                     {
                         // TODO: Create TagList<T> for the correct type
@@ -272,12 +196,24 @@ public class NbtReader : IDisposable
                         continue; // No need to push stack
                     }
 
-                    // Push the current tag onto the stack and start parsing the TagList
-                    stack.Push((currentTag, tagName));
-                    nbtReader.State = NbtReaderState.ParsingTagList;
-                    nbtReader.ListTagId = listTagId;
-                    nbtReader.ListRemainingLength = length;
-                    continue;
+                    // Initialize the TagList
+                    TagList tagList = InitializeTagList(listTagId, length, ref valueBuffer, out bool isCompleted);
+
+                    if (isCompleted) // TagList<simple tags>
+                    {
+                        ((TagCompound)currentTag)[tagName] = tagList;
+                        continue;
+                    }
+                    else
+                    {
+                        // Push the current tag onto the stack and start parsing a TagList<TagCompound> or TagList<TagList>
+                        stack.Push((currentTag, tagName));
+                        currentTag = tagList;
+                        nbtReader.State = NbtReaderState.ParsingTagList;
+                        nbtReader.ListItemId = listTagId;
+                        nbtReader.ListRemainingLength = length;
+                        continue;
+                    }
                 }
 
                 // Read the payload for simple tags
@@ -431,6 +367,76 @@ public class NbtReader : IDisposable
             data[i] = BitConverter.ToInt64(buffer);
         }
         return new TagLongArray(data);
+    }
+
+    internal TagList InitializeTagList(TagId itemId, int length, ref Span<byte> valueBuffer, out bool isCompleted)
+    {
+        isCompleted = true; // For TagList<simple tags>, the list is completely parsed; set to false for TagList<TagCompound> and TagList<TagList>
+
+        // TODO: Speed up reading for simple tags since the length is known
+        switch (itemId)
+        {
+            case TagId.Byte:
+                TagList<sbyte> sbytes = new(length);
+                for (int i = 0; i < length; i++)
+                    sbytes.Add(ReadByte());
+                return sbytes;
+            case TagId.Short:
+                TagList<short> shorts = new(length);
+                for (int i = 0; i < length; i++)
+                    shorts.Add(ReadShort(ref valueBuffer));
+                return shorts;
+            case TagId.Int:
+                TagList<int> ints = new(length);
+                for (int i = 0; i < length; i++)
+                    ints.Add(ReadInt(ref valueBuffer));
+                return ints;
+            case TagId.Long:
+                TagList<long> longs = new(length);
+                for (int i = 0; i < length; i++)
+                    longs.Add(ReadLong(ref valueBuffer));
+                return longs;
+            case TagId.Float:
+                TagList<float> floats = new(length);
+                for (int i = 0; i < length; i++)
+                    floats.Add(ReadFloat(ref valueBuffer));
+                return floats;
+            case TagId.Double:
+                TagList<double> doubles = new(length);
+                for (int i = 0; i < length; i++)
+                    doubles.Add(ReadDouble(ref valueBuffer));
+                return doubles;
+            case TagId.ByteArray:
+                TagList<TagByteArray> byteArrays = new(length);
+                for (int i = 0; i < length; i++)
+                    byteArrays.Add(ReadTagByteArray(ref valueBuffer));
+                return byteArrays;
+            case TagId.String:
+                TagList<string> strings = new(length);
+                for (int i = 0; i < length; i++)
+                    strings.Add(ReadString(ref valueBuffer));
+                return strings;
+            case TagId.Compound:
+                TagList<TagCompound> compounds = new(length);
+                isCompleted = false;
+                return compounds;
+            case TagId.List:
+                TagList<TagList> lists = new(length);
+                isCompleted = false;
+                return lists;
+            case TagId.IntArray:
+                TagList<TagIntArray> intArrays = new(length);
+                for (int i = 0; i < length; i++)
+                    intArrays.Add(ReadTagIntArray(ref valueBuffer));
+                return intArrays;
+            case TagId.LongArray:
+                TagList<TagLongArray> longArrays = new(length);
+                for (int i = 0; i < length; i++)
+                    longArrays.Add(ReadTagLongArray(ref valueBuffer));
+                return longArrays;
+            default:
+                throw new InvalidDataException($"Invalid TAG_List item ID: {itemId}");
+        }
     }
 
     public void Dispose()
