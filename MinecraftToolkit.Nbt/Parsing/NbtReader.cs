@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt.Parsing;
 
-public class NbtReader
+public class NbtReader : IDisposable
 {
     public Stream Stream { get; init; }
 
     private BinaryReader _reader;
-    private bool _needsReversedByteOrder = BitConverter.IsLittleEndian;
+    private static bool s_needsReversedByteOrder = BitConverter.IsLittleEndian;
 
     public NbtReader(Stream stream, NbtCompression compression = NbtCompression.None)
     {
@@ -330,7 +330,7 @@ public class NbtReader
     {
         Span<byte> buffer = valueBuffer[0..2];
         _reader.Read(buffer);
-        if (_needsReversedByteOrder)
+        if (s_needsReversedByteOrder)
             buffer.Reverse();
         return BitConverter.ToUInt16(buffer);
     }
@@ -340,7 +340,7 @@ public class NbtReader
     {
         Span<byte> buffer = valueBuffer[0..2];
         _reader.Read(buffer);
-        if (_needsReversedByteOrder)
+        if (s_needsReversedByteOrder)
             buffer.Reverse();
         return BitConverter.ToInt16(buffer);
     }
@@ -350,7 +350,7 @@ public class NbtReader
     {
         Span<byte> buffer = valueBuffer[0..4];
         _reader.Read(buffer);
-        if (_needsReversedByteOrder)
+        if (s_needsReversedByteOrder)
             buffer.Reverse();
         return BitConverter.ToInt32(buffer);
     }
@@ -359,7 +359,7 @@ public class NbtReader
     internal long ReadLong(ref Span<byte> valueBuffer)
     {
         _reader.Read(valueBuffer);
-        if (_needsReversedByteOrder)
+        if (s_needsReversedByteOrder)
             valueBuffer.Reverse();
         return BitConverter.ToInt64(valueBuffer);
     }
@@ -369,7 +369,7 @@ public class NbtReader
     {
         Span<byte> buffer = valueBuffer[0..4];
         _reader.Read(buffer);
-        if (_needsReversedByteOrder)
+        if (s_needsReversedByteOrder)
             buffer.Reverse();
         return BitConverter.ToSingle(buffer);
     }
@@ -378,7 +378,7 @@ public class NbtReader
     internal double ReadDouble(ref Span<byte> valueBuffer)
     {
         _reader.Read(valueBuffer);
-        if (_needsReversedByteOrder)
+        if (s_needsReversedByteOrder)
             valueBuffer.Reverse();
         return BitConverter.ToDouble(valueBuffer);
     }
@@ -410,7 +410,7 @@ public class NbtReader
         for (int i = 0; i < length; i++)
         {
             _reader.Read(buffer);
-            if (_needsReversedByteOrder)
+            if (s_needsReversedByteOrder)
                 buffer.Reverse();
             data[i] = BitConverter.ToInt32(buffer);
         }
@@ -426,10 +426,15 @@ public class NbtReader
         for (int i = 0; i < length; i++)
         {
             _reader.Read(buffer);
-            if (_needsReversedByteOrder)
+            if (s_needsReversedByteOrder)
                 buffer.Reverse();
             data[i] = BitConverter.ToInt64(buffer);
         }
         return new TagLongArray(data);
+    }
+
+    public void Dispose()
+    {
+        _reader.Dispose();
     }
 }
