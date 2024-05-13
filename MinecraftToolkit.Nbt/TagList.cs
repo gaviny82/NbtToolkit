@@ -10,7 +10,7 @@ namespace MinecraftToolkit.Nbt;
 /// <summary>
 /// Base class for all list tags
 /// </summary>
-public abstract class TagList : Tag // TODO: Implement IList<Tag>
+public abstract class TagList : Tag
 {
     public override TagType Type => TagType.List;
 
@@ -72,7 +72,7 @@ public sealed class TagList<T> : TagList, IList<T> where T : notnull
     }
     public override int Capacity => _items.Capacity;
 
-    private readonly List<T> _items;
+    internal readonly List<T> _items;
 
     // QUESTION: What's the type of an empty list?
     public TagList()

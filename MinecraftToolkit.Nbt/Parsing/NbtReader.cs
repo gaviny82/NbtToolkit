@@ -261,33 +261,45 @@ public partial class NbtReader : IDisposable
         {
             case TagId.Byte:
                 TagList<sbyte> sbytes = new(length);
-                for (int i = 0; i < length; i++)
-                    sbytes.Add(_reader.ReadSByte());
+                var sbytesByteSpan = MemoryMarshal.AsBytes(CollectionsMarshal.AsSpan(sbytes._items));
+                _reader.Read(sbytesByteSpan);
                 return sbytes;
             case TagId.Short:
                 TagList<short> shorts = new(length);
-                for (int i = 0; i < length; i++)
-                    shorts.Add(_reader.ReadInt16());
+                var shortsSpan = CollectionsMarshal.AsSpan(shorts._items);
+                var shortsByteSpan = MemoryMarshal.AsBytes(shortsSpan);
+                _reader.Read(shortsByteSpan);
+                BinaryPrimitives.ReverseEndianness(shortsSpan, shortsSpan);
                 return shorts;
             case TagId.Int:
                 TagList<int> ints = new(length);
-                for (int i = 0; i < length; i++)
-                    ints.Add(_reader.ReadInt32());
+                var intsSpan = CollectionsMarshal.AsSpan(ints._items);
+                var intsByteSpan = MemoryMarshal.AsBytes(intsSpan);
+                _reader.Read(intsByteSpan);
+                BinaryPrimitives.ReverseEndianness(intsSpan, intsSpan);
                 return ints;
             case TagId.Long:
                 TagList<long> longs = new(length);
-                for (int i = 0; i < length; i++)
-                    longs.Add(_reader.ReadInt64());
+                var longsSpan = CollectionsMarshal.AsSpan(longs._items);
+                var longsByteSpan = MemoryMarshal.AsBytes(longsSpan);
+                _reader.Read(longsByteSpan);
+                BinaryPrimitives.ReverseEndianness(longsSpan, longsSpan);
                 return longs;
             case TagId.Float:
                 TagList<float> floats = new(length);
-                for (int i = 0; i < length; i++)
-                    floats.Add(_reader.ReadSingle());
+                var floatsSpan = CollectionsMarshal.AsSpan(floats._items);
+                var floatsByteSpan = MemoryMarshal.AsBytes(floatsSpan);
+                _reader.Read(floatsByteSpan);
+                Span<int> floatsAsIntSpan = MemoryMarshal.Cast<float, int>(floatsSpan);
+                BinaryPrimitives.ReverseEndianness(floatsAsIntSpan, floatsAsIntSpan);
                 return floats;
             case TagId.Double:
                 TagList<double> doubles = new(length);
-                for (int i = 0; i < length; i++)
-                    doubles.Add(_reader.ReadDouble());
+                var doublesSpan = CollectionsMarshal.AsSpan(doubles._items);
+                var doublesByteSpan = MemoryMarshal.AsBytes(doublesSpan);
+                _reader.Read(doublesByteSpan);
+                Span<long> doublesAsLongSpan = MemoryMarshal.Cast<double, long>(doublesSpan);
+                BinaryPrimitives.ReverseEndianness(doublesAsLongSpan, doublesAsLongSpan);
                 return doubles;
             case TagId.ByteArray:
                 TagList<TagByteArray> byteArrays = new(length);
