@@ -14,6 +14,9 @@ public partial class NbtReader
 {
     internal class NbtBinaryReader : BinaryReader
     {
+        internal const int StringBufferSize = 128; // NBT names are usually shorter than 128 ASCII characters
+        private readonly byte[] stringBuffer = new byte[StringBufferSize]; // Buffer for reading strings in NBT streams
+
         public NbtBinaryReader(Stream stream) : this(stream, Encoding.UTF8) { }
 
         public NbtBinaryReader(Stream stream, Encoding encoding, bool leaveOpen = false)
@@ -28,8 +31,18 @@ public partial class NbtReader
             ushort length = ReadUInt16();
             // The number of characters in the string is unknown due to the variable length UTF-8 encoding, so string.Create<T> cannot be used
             // TODO: Use modified UTF-8 encoding
-            // TODO: Optimize reading strings by allocating a buffer for short strings, only create new byte[] for long strings
-            return Encoding.UTF8.GetString(base.ReadBytes(length));
+            // TODO: Consider optimization using StringBuilder, see .NET implementation of BinaryReader.ReadString
+            if (length > StringBufferSize)
+            {
+                byte[] buffer = new byte[length];
+                Read(buffer, 0, length);
+                return Encoding.UTF8.GetString(buffer);
+            }
+            else
+            {
+                Read(stringBuffer, 0, length);
+                return Encoding.UTF8.GetString(stringBuffer, 0, length);
+            }
         }
 
         /// <summary>
