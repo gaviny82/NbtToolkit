@@ -1,5 +1,6 @@
 ﻿using MinecraftToolkit.Nbt.Parsing;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
@@ -10,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt.Benchmark;
 
-public class RecursiveNbtReader
+public class RecursiveNbtReader : IDisposable
 {
     public Stream Stream { get; init; }
 
     private BinaryReader _reader;
-    private bool _needsReversedByteOrder = BitConverter.IsLittleEndian;
+    private static bool s_needsReversedEndianness = BitConverter.IsLittleEndian;
 
-    public RecursiveNbtReader(Stream stream, NbtCompression compression = NbtCompression.None)
+    public RecursiveNbtReader(Stream stream, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
         Stream = compression switch
         {
@@ -27,7 +28,7 @@ public class RecursiveNbtReader
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
 
-        _reader = new BinaryReader(Stream, Encoding.UTF8);
+        _reader = new BinaryReader(Stream, Encoding.UTF8, leaveOpen);
     }
 
     public TagCompound ReadRootTag()
@@ -96,6 +97,8 @@ public class RecursiveNbtReader
         return tagType;
     }
 
+    #region Read values with endianness conversion
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal sbyte ReadByte()
     {
@@ -105,62 +108,97 @@ public class RecursiveNbtReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ushort ReadUShort()
     {
-        Span<byte> buffer = stackalloc byte[2];
-        _reader.Read(buffer);
-        if (_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToUInt16(buffer);
+        ushort value = _reader.ReadUInt16();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal short ReadShort()
     {
-        Span<byte> buffer = stackalloc byte[2];
-        _reader.Read(buffer);
-        if (_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToInt16(buffer);
+        short value = _reader.ReadInt16();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal int ReadInt()
     {
-        Span<byte> buffer = stackalloc byte[4];
-        _reader.Read(buffer);
-        if (_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToInt32(buffer);
+        int value = _reader.ReadInt32();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal long ReadLong()
     {
-        Span<byte> buffer = stackalloc byte[8];
-        _reader.Read(buffer);
-        if (_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToInt64(buffer);
+        long value = _reader.ReadInt64();
+        if (s_needsReversedEndianness)
+            value = BinaryPrimitives.ReverseEndianness(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal float ReadFloat()
     {
-        Span<byte> buffer = stackalloc byte[4];
-        _reader.Read(buffer);
-        if (_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToSingle(buffer);
+        float value = _reader.ReadSingle();
+        if (s_needsReversedEndianness)
+        {
+            uint bits = Unsafe.As<float, uint>(ref value);
+            value = BinaryPrimitives.ReverseEndianness(bits);
+        }
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal double ReadDouble()
     {
-        Span<byte> buffer = stackalloc byte[8];
-        _reader.Read(buffer);
-        if (_needsReversedByteOrder)
-            buffer.Reverse();
-        return BitConverter.ToDouble(buffer);
+        double value = _reader.ReadDouble();
+        if (s_needsReversedEndianness)
+        {
+            ulong bits = Unsafe.As<double, ulong>(ref value);
+            value = BinaryPrimitives.ReverseEndianness(bits);
+        }
+        return value;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TagByteArray ReadTagByteArray()
+    {
+        int length = ReadInt();
+        sbyte[] data = new sbyte[length];
+        _reader.Read(MemoryMarshal.AsBytes<sbyte>(data));
+        return new TagByteArray(data);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TagIntArray ReadTagIntArray()
+    {
+        int length = ReadInt();
+        int[] data = new int[length];
+        _reader.Read(MemoryMarshal.AsBytes<int>(data));
+
+        if (s_needsReversedEndianness)
+            BinaryPrimitives.ReverseEndianness(data, data);
+
+        return new TagIntArray(data);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal TagLongArray ReadTagLongArray()
+    {
+        int length = ReadInt();
+        long[] data = new long[length];
+        _reader.Read(MemoryMarshal.AsBytes<long>(data));
+        if (s_needsReversedEndianness)
+            BinaryPrimitives.ReverseEndianness(data, data);
+        return new TagLongArray(data);
+    }
+
+    #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal string ReadString()
@@ -249,44 +287,8 @@ public class RecursiveNbtReader
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagByteArray ReadTagByteArray()
+    public void Dispose()
     {
-        int length = ReadInt();
-        sbyte[] data = new sbyte[length];
-        _reader.Read(Unsafe.As<byte[]>(data), 0, length);
-        return new TagByteArray(data);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagIntArray ReadTagIntArray()
-    {
-        int length = ReadInt();
-        int[] data = new int[length];
-        Span<byte> buffer = stackalloc byte[4];
-        for (int i = 0; i < length; i++)
-        {
-            _reader.Read(buffer);
-            if (_needsReversedByteOrder)
-                buffer.Reverse();
-            data[i] = BitConverter.ToInt32(buffer);
-        }
-        return new TagIntArray(data);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagLongArray ReadTagLongArray()
-    {
-        int length = ReadInt();
-        long[] data = new long[length];
-        Span<byte> buffer = stackalloc byte[8];
-        for (int i = 0; i < length; i++)
-        {
-            _reader.Read(buffer);
-            if (_needsReversedByteOrder)
-                buffer.Reverse();
-            data[i] = BitConverter.ToInt64(buffer);
-        }
-        return new TagLongArray(data);
+        _reader.Dispose();
     }
 }

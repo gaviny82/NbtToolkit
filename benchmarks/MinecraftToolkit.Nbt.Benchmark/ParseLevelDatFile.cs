@@ -17,6 +17,7 @@ public class ParseLevelDatFile
     private MemoryStream _stream = null!;
 
     private NbtReader _nbtReaderMct = null!;
+    private RecursiveNbtReader _nbtRecursiveReaderMct = null!;
     private fNbt.NbtFile _nbtFilefNbt = null!;
     private Substrate.Nbt.NbtTree _nbtTreeSubstrate = null!;
 
@@ -35,6 +36,7 @@ public class ParseLevelDatFile
 
         // Prepare parsers
         _nbtReaderMct = new NbtReader(_stream, NbtCompression.None, true);
+        _nbtRecursiveReaderMct = new RecursiveNbtReader(_stream, NbtCompression.None, true);
         _nbtFilefNbt = new fNbt.NbtFile();
         _nbtTreeSubstrate = new Substrate.Nbt.NbtTree();
     }
@@ -44,6 +46,7 @@ public class ParseLevelDatFile
     {
         _stream.Dispose();
         _nbtReaderMct.Dispose();
+        _nbtRecursiveReaderMct.Dispose();
     }
 
     [Benchmark(Baseline = true)]
@@ -51,6 +54,13 @@ public class ParseLevelDatFile
     {
         _stream.Position = 0;
         _nbtReaderMct.ReadRootTag();
+    }
+
+    [Benchmark]
+    public void Parse_MCT_Recursive()
+    {
+        _stream.Position = 0;
+        _nbtRecursiveReaderMct.ReadRootTag();
     }
 
     [Benchmark]
