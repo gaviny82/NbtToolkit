@@ -91,21 +91,6 @@ public class TagDouble : Tag
     public static implicit operator TagDouble(double value) => new TagDouble(value);
 }
 
-// TODO: remove this class
-public class TagBool : Tag
-{
-    public override TagType Type => TagType.Byte;
-
-    public bool Value { get; set; }
-
-    public TagBool(bool value)
-    {
-        Value = value;
-    }
-
-    public static implicit operator TagBool(bool value) => new TagBool(value);
-}
-
 public class TagString : Tag
 {
     public override TagType Type => TagType.String;

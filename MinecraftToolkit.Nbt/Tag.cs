@@ -72,7 +72,7 @@ public abstract class Tag
     /// </summary>
     /// <returns>A <see cref="bool"/> value</returns>
     /// <exception cref="InvalidCastException">The value stored is not a <see cref="bool"/></exception>
-    public bool AsBool() => ((TagBool)this).Value;
+    public bool AsBool() => ((TagByte)this).Value == 1;
 
     /// <summary>
     /// Read the value stored in <see cref="TagValue"/> as a <see cref="string"/> value.
