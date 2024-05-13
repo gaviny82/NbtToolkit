@@ -78,13 +78,9 @@ public class NbtReader : IDisposable
                 }
 
                 // Parse the next list element while nbtReader.ListLength != 0
-                if (stateMachine.ListItemId == TagId.Compound) // TagCompound in a TagList<TagCompound>
-                {
-                    stateMachine.Stack.Push((stateMachine.CurrentTag, null)); // currentTag is a TagList<TagCompound>
-                    stateMachine.CurrentTag = new TagCompound();
-                    stateMachine.State = NbtReaderState.ParsingTagCompound; // Transition to the state for parsing TagCompound
-                    continue;
-                }
+
+                // ListItemId == TagId.Compound is handled in the ParsingTagCompound state
+
                 if (stateMachine.ListItemId == TagId.List) // TagList in a TagList<TagList>
                 {
                     // Read list tag ID and length
@@ -133,23 +129,31 @@ public class NbtReader : IDisposable
                         break;
 
                     // Pop the stack
-                    (Tag t, string? n) = stateMachine.Stack.Pop();
+                    (Tag t, string? n) = stateMachine.Stack.Peek();
                     if (t is TagCompound tagCompound) // Finish parsing a TagCompound in a TagCompound
                     {
+                        stateMachine.Stack.Pop();
                         tagCompound[n!] = (TagCompound)stateMachine.CurrentTag;
                         stateMachine.CurrentTag = t;
                         continue;
                     }
                     else if (t is TagList<TagCompound> tagListCompound) // Finish parsing a single TagCompound in a TagList<TagCompound>
                     {
-                        // QUESTION: For TagList<TagCompound>, can we avoid switching between states for ParsingTagCompound and ParsingTagList?
                         tagListCompound.Add((TagCompound)stateMachine.CurrentTag);
 
                         // Transition to the state for parsing TagList
                         stateMachine.ListRemainingLength = tagListCompound.Capacity - tagListCompound.Count;
-                        stateMachine.State = NbtReaderState.ParsingTagList;
-                        stateMachine.ListItemId = TagId.Compound;
-                        stateMachine.CurrentTag = t;
+                        if (stateMachine.ListRemainingLength == 0)
+                        {
+                            stateMachine.Stack.Pop();
+                            stateMachine.CurrentTag = t;
+                            stateMachine.State = NbtReaderState.ParsingTagList;
+                            stateMachine.ListItemId = TagId.Compound;
+                        }
+                        else // Keep in ParsingTagCompound state to reduce state switches if the TagList<TagCompound> is not finished
+                        {
+                            stateMachine.CurrentTag = new TagCompound();
+                        }
                         continue;
                     }
                     else // Impossible case
@@ -204,8 +208,16 @@ public class NbtReader : IDisposable
                     {
                         // Push the current tag onto the stack and start parsing a TagList<TagCompound> or TagList<TagList>
                         stateMachine.Stack.Push((stateMachine.CurrentTag, tagName));
-                        stateMachine.CurrentTag = tagList;
-                        stateMachine.State = NbtReaderState.ParsingTagList;
+                        if (listTagId == TagId.Compound) // Initialize list parsing and remain in the state for parsing TagCompound to avoid switching states
+                        {
+                            stateMachine.CurrentTag = new TagCompound();
+                            stateMachine.Stack.Push((tagList, null));
+                        }
+                        else
+                        {
+                            stateMachine.State = NbtReaderState.ParsingTagList;
+                            stateMachine.CurrentTag = tagList;
+                        }
                         stateMachine.ListItemId = listTagId;
                         stateMachine.ListRemainingLength = length;
                         continue;
