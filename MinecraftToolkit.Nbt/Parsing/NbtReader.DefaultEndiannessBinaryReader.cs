@@ -12,14 +12,14 @@ namespace MinecraftToolkit.Nbt.Parsing;
 
 public partial class NbtReader
 {
-    internal class NbtBinaryReader : BinaryReader
+    internal class DefaultEndiannessBinaryReader : BinaryReader
     {
         internal const int StringBufferSize = 128; // NBT names are usually shorter than 128 ASCII characters
         private readonly byte[] stringBuffer = new byte[StringBufferSize]; // Buffer for reading strings in NBT streams
 
-        public NbtBinaryReader(Stream stream) : this(stream, Encoding.UTF8) { }
+        public DefaultEndiannessBinaryReader(Stream stream) : this(stream, Encoding.UTF8) { }
 
-        public NbtBinaryReader(Stream stream, Encoding encoding, bool leaveOpen = false)
+        public DefaultEndiannessBinaryReader(Stream stream, Encoding encoding, bool leaveOpen = false)
             : base(stream, encoding, leaveOpen) { }
 
         /// <summary>

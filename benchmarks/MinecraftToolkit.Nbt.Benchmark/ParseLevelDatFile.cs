@@ -16,8 +16,8 @@ public class ParseLevelDatFile
     private const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
     private MemoryStream _stream = null!;
 
-    private NbtReader _nbtReaderMct = null!;
-    private RecursiveNbtReader _nbtRecursiveReaderMct = null!;
+    private NbtReader_StateMachineImpl _nbtReaderMct = null!;
+    private NbtReader _nbtRecursiveReaderMct = null!;
     private fNbt.NbtFile _nbtFilefNbt = null!;
     private Substrate.Nbt.NbtTree _nbtTreeSubstrate = null!;
 
@@ -35,8 +35,8 @@ public class ParseLevelDatFile
         _stream = new MemoryStream(bytes);
 
         // Prepare parsers
-        _nbtReaderMct = new NbtReader(_stream, NbtCompression.None, true);
-        _nbtRecursiveReaderMct = new RecursiveNbtReader(_stream, NbtCompression.None, true);
+        _nbtReaderMct = new NbtReader_StateMachineImpl(_stream, NbtCompression.None, true);
+        _nbtRecursiveReaderMct = new NbtReader(_stream, NbtCompression.None, true);
         _nbtFilefNbt = new fNbt.NbtFile();
         _nbtTreeSubstrate = new Substrate.Nbt.NbtTree();
     }

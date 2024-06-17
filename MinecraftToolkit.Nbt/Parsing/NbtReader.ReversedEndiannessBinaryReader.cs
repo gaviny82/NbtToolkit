@@ -13,11 +13,11 @@ namespace MinecraftToolkit.Nbt.Parsing;
 
 public partial class NbtReader
 {
-    internal class ReversedEndiannessNbtBinaryReader : NbtBinaryReader
+    internal class ReversedEndiannessBinaryReader : DefaultEndiannessBinaryReader
     {
-        public ReversedEndiannessNbtBinaryReader(Stream stream) : this(stream, Encoding.UTF8) { }
+        public ReversedEndiannessBinaryReader(Stream stream) : this(stream, Encoding.UTF8) { }
 
-        public ReversedEndiannessNbtBinaryReader(Stream stream, Encoding encoding, bool leaveOpen = false)
+        public ReversedEndiannessBinaryReader(Stream stream, Encoding encoding, bool leaveOpen = false)
             : base(stream, encoding, leaveOpen) { }
 
 
