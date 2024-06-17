@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt.Parsing;
 
-public enum TagId : byte
+internal enum TagId : byte
 {
     End = 0,
     Byte = 1,
