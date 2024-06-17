@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using MinecraftToolkit.Nbt.Parsing;
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
@@ -117,4 +118,10 @@ public abstract class Tag
     public long[] AsLongArray() => ((TagLongArray)this).Value;
 
     #endregion
+
+    /// <summary>
+    /// Writes the tag ID, name and payload using a given <see cref="NbtWriter"/>
+    /// </summary>
+    /// <param name="writer">The <see cref="NbtWriter"/> given</param>
+    internal abstract void WriteTag(NbtWriter writer, string tagName);
 }

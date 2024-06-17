@@ -49,7 +49,7 @@ public partial class NbtReader
         /// Reads a signed byte array prefixed by an <see cref="int"/> length
         /// </summary>
         /// <returns>A signed byte array</returns>
-        public virtual sbyte[] ReadSByteArray()
+        public sbyte[] ReadSByteArray()
         {
             int length = ReadInt32();
             sbyte[] data = new sbyte[length];

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MinecraftToolkit.Nbt.Parsing;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -87,4 +88,17 @@ public class TagCompound : Tag, IDictionary<string, Tag>
     }
 
     #endregion
+
+    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    {
+        writer.Write(TagId.Compound);
+        writer.BinaryWriter.Write(tagName);
+
+        foreach ((string name, Tag t) in this)
+        {
+            t.WriteTag(writer, name);
+        }
+
+        writer.Write(TagId.End);
+    }
 }

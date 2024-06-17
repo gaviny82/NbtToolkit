@@ -131,4 +131,65 @@ public sealed class TagList<T> : TagList, IList<T> where T : notnull
     public void RemoveAt(int index) => _items.RemoveAt(index);
 
     #endregion
+
+    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    {
+        writer.Write(TagId.List);
+        writer.BinaryWriter.Write(tagName);
+
+        // TODO: payload
+        switch (ItemType)
+        {
+            case TagType.Byte:
+                writer.Write(TagId.Byte);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.Short:
+                writer.Write(TagId.Short);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.Int:
+                writer.Write(TagId.Int);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.Long:
+                writer.Write(TagId.Long);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.Float:
+                writer.Write(TagId.Float);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.Double:
+                writer.Write(TagId.Double);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.String:
+                writer.Write(TagId.String);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.List:
+                writer.Write(TagId.List);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.Compound:
+                writer.Write(TagId.Compound);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.ByteArray:
+                writer.Write(TagId.ByteArray);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.IntArray:
+                writer.Write(TagId.IntArray);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            case TagType.LongArray:
+                writer.Write(TagId.LongArray);
+                writer.BinaryWriter.Write(_items.Count);
+                break;
+            default:
+                throw new InvalidOperationException("Invalid TagList type");
+        }
+    }
 }
