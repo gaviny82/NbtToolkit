@@ -69,14 +69,14 @@ internal sealed class NbtBinaryWriter : IDisposable
             Span<byte> buffer = stackalloc byte[MaxStackBufferSize];
             int actualByteCount = encoding.GetBytes(str, buffer); // Avoid 2-pass calculation
             Write((ushort)actualByteCount); // Guaranteed to be less than ushort.MaxValue
-            _stream.Write(buffer);
+            _stream.Write(buffer[0..actualByteCount]);
         }
         else if (str.Length <= MaxNbtStringByteCount / 3) // Use ArrayPool buffer for medium number of characters
         {
             byte[] rented = ArrayPool<byte>.Shared.Rent(str.Length * 3);
             int actualByteCount = encoding.GetBytes(str, rented); // Avoid 2-pass calculation
             Write((ushort)actualByteCount); // Guaranteed to be less than ushort.MaxValue
-            _stream.Write(rented);
+            _stream.Write(rented, 0, actualByteCount);
             ArrayPool<byte>.Shared.Return(rented);
         }
         else // Fall back: use 2-pass calculation for large number of characters
