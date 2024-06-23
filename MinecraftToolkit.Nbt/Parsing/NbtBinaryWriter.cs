@@ -10,6 +10,7 @@ internal sealed class NbtBinaryWriter : IDisposable
 {
     private const int MaxStackBufferSize = 128;
     private const int MaxNbtStringByteCount = ushort.MaxValue; // 64 KB (limit of NbtString)
+    private const int MaxArrayPoolSize = 64 * 1024;
 
     private readonly Stream _stream;
     private readonly bool _leaveOpen;
@@ -72,7 +73,7 @@ internal sealed class NbtBinaryWriter : IDisposable
         }
         else if (chars.Length <= MaxNbtStringByteCount / 3) // Use ArrayPool buffer for medium number of characters
         {
-            byte[] rented = ArrayPool<byte>.Shared.Rent(MaxNbtStringByteCount);
+            byte[] rented = ArrayPool<byte>.Shared.Rent(chars.Length * 3);
             int actualByteCount = encoding.GetBytes(chars, rented); // Avoid 2-pass calculation
             Write((ushort)actualByteCount); // Guaranteed to be less than ushort.MaxValue
             _stream.Write(rented);
@@ -140,9 +141,7 @@ internal sealed class NbtBinaryWriter : IDisposable
 
     #endregion
 
-    // TODO: Avoid renting huge buffers from ArrayPool
-
-    #region Writing a sequence of values
+    #region Writing a span of values
 
     public void Write(ReadOnlySpan<sbyte> values)
     {
@@ -156,17 +155,39 @@ internal sealed class NbtBinaryWriter : IDisposable
         {
             // Allocate the buffer on the stack if it's small enough, otherwise rent from the pool
             int byteCount = values.Length * sizeof(short);
-            byte[]? rented = byteCount <= MaxStackBufferSize ? null : ArrayPool<byte>.Shared.Rent(byteCount);
-            Span<byte> buffer = rented is null ? stackalloc byte[byteCount] : rented;
+            if (byteCount <= MaxStackBufferSize)
+            {
+                Span<byte> buffer = stackalloc byte[byteCount];
+                Span<short> bufferAsShort = MemoryMarshal.Cast<byte, short>(buffer);
+                BinaryPrimitives.ReverseEndianness(values, bufferAsShort);
+                _stream.Write(buffer);
+            }
+            else if (byteCount <= MaxArrayPoolSize)
+            {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+                Span<short> bufferAsShort = MemoryMarshal.Cast<byte, short>(buffer);
+                BinaryPrimitives.ReverseEndianness(values, bufferAsShort);
+                _stream.Write(buffer);
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+            else
+            {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(MaxArrayPoolSize);
+                Span<short> bufferAsShort = MemoryMarshal.Cast<byte, short>(buffer);
 
-            // Cast the buffer to Span<short> for byte order conversion
-            Span<short> dest = MemoryMarshal.Cast<byte, short>(buffer);
-            BinaryPrimitives.ReverseEndianness(values, dest);
+                while (values.Length > bufferAsShort.Length)
+                {
+                    BinaryPrimitives.ReverseEndianness(values[0..bufferAsShort.Length], bufferAsShort);
+                    _stream.Write(buffer);
+                    values = values[bufferAsShort.Length..];
+                }
 
-            _stream.Write(buffer);
+                // Reaminder
+                BinaryPrimitives.ReverseEndianness(values, bufferAsShort);
+                _stream.Write(buffer, 0, values.Length * sizeof(short));
 
-            if (rented is not null)
-                ArrayPool<byte>.Shared.Return(rented);
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
         else
         {
@@ -181,17 +202,39 @@ internal sealed class NbtBinaryWriter : IDisposable
         {
             // Allocate the buffer on the stack if it's small enough, otherwise rent from the pool
             int byteCount = values.Length * sizeof(int);
-            byte[]? rented = byteCount <= MaxStackBufferSize ? null : ArrayPool<byte>.Shared.Rent(byteCount);
-            Span<byte> buffer = rented is null ? stackalloc byte[byteCount] : rented;
+            if (byteCount <= MaxStackBufferSize)
+            {
+                Span<byte> buffer = stackalloc byte[byteCount];
+                Span<int> bufferAsInt = MemoryMarshal.Cast<byte, int>(buffer);
+                BinaryPrimitives.ReverseEndianness(values, bufferAsInt);
+                _stream.Write(buffer);
+            }
+            else if (byteCount <= MaxArrayPoolSize)
+            {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+                Span<int> bufferAsInt = MemoryMarshal.Cast<byte, int>(buffer);
+                BinaryPrimitives.ReverseEndianness(values, bufferAsInt);
+                _stream.Write(buffer);
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+            else
+            {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(MaxArrayPoolSize);
+                Span<int> bufferAsInt = MemoryMarshal.Cast<byte, int>(buffer);
 
-            // Cast the buffer to Span<int> for byte order conversion
-            Span<int> dest = MemoryMarshal.Cast<byte, int>(buffer);
-            BinaryPrimitives.ReverseEndianness(values, dest);
+                while (values.Length > bufferAsInt.Length)
+                {
+                    BinaryPrimitives.ReverseEndianness(values[0..bufferAsInt.Length], bufferAsInt);
+                    _stream.Write(buffer);
+                    values = values[bufferAsInt.Length..];
+                }
 
-            _stream.Write(buffer);
+                // Reaminder
+                BinaryPrimitives.ReverseEndianness(values, bufferAsInt);
+                _stream.Write(buffer, 0, values.Length * sizeof(int));
 
-            if (rented is not null)
-                ArrayPool<byte>.Shared.Return(rented);
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
         else
         {
@@ -206,17 +249,39 @@ internal sealed class NbtBinaryWriter : IDisposable
         {
             // Allocate the buffer on the stack if it's small enough, otherwise rent from the pool
             int byteCount = values.Length * sizeof(long);
-            byte[]? rented = byteCount <= MaxStackBufferSize ? null : ArrayPool<byte>.Shared.Rent(byteCount);
-            Span<byte> buffer = rented is null ? stackalloc byte[byteCount] : rented;
+            if (byteCount <= MaxStackBufferSize)
+            {
+                Span<byte> buffer = stackalloc byte[byteCount];
+                Span<long> bufferAsLong = MemoryMarshal.Cast<byte, long>(buffer);
+                BinaryPrimitives.ReverseEndianness(values, bufferAsLong);
+                _stream.Write(buffer);
+            }
+            else if (byteCount <= MaxArrayPoolSize)
+            {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
+                Span<long> bufferAsLong = MemoryMarshal.Cast<byte, long>(buffer);
+                BinaryPrimitives.ReverseEndianness(values, bufferAsLong);
+                _stream.Write(buffer);
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+            else
+            {
+                byte[] buffer = ArrayPool<byte>.Shared.Rent(MaxArrayPoolSize);
+                Span<long> bufferAsLong = MemoryMarshal.Cast<byte, long>(buffer);
 
-            // Cast the buffer to Span<short> for byte order conversion
-            Span<long> dest = MemoryMarshal.Cast<byte, long>(buffer);
-            BinaryPrimitives.ReverseEndianness(values, dest);
+                while (values.Length > bufferAsLong.Length)
+                {
+                    BinaryPrimitives.ReverseEndianness(values[0..bufferAsLong.Length], bufferAsLong);
+                    _stream.Write(buffer);
+                    values = values[bufferAsLong.Length..];
+                }
 
-            _stream.Write(buffer);
+                // Reaminder
+                BinaryPrimitives.ReverseEndianness(values, bufferAsLong);
+                _stream.Write(buffer, 0, values.Length * sizeof(long));
 
-            if (rented is not null)
-                ArrayPool<byte>.Shared.Return(rented);
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
         else
         {
@@ -225,57 +290,9 @@ internal sealed class NbtBinaryWriter : IDisposable
         }
     }
 
-    public void Write(ReadOnlySpan<float> values)
-    {
-        if (BitConverter.IsLittleEndian)
-        {
-            // Allocate the buffer on the stack if it's small enough, otherwise rent from the pool
-            int byteCount = values.Length * sizeof(float);
-            byte[]? rented = byteCount <= MaxStackBufferSize ? null : ArrayPool<byte>.Shared.Rent(byteCount);
-            Span<byte> buffer = rented is null ? stackalloc byte[byteCount] : rented;
-
-            // Cast the buffer to Span<short> for byte order conversion
-            Span<int> dest = MemoryMarshal.Cast<byte, int>(buffer);
-            ReadOnlySpan<int> source = MemoryMarshal.Cast<float, int>(values); // float values are reinterpreted as int values
-            BinaryPrimitives.ReverseEndianness(source, dest);
-
-            _stream.Write(buffer);
-
-            if (rented is not null)
-                ArrayPool<byte>.Shared.Return(rented);
-        }
-        else
-        {
-            var bytes = MemoryMarshal.AsBytes(values);
-            _stream.Write(bytes);
-        }
-    }
-
-    public void Write(ReadOnlySpan<double> values)
-    {
-        if (BitConverter.IsLittleEndian)
-        {
-            // Allocate the buffer on the stack if it's small enough, otherwise rent from the pool
-            int byteCount = values.Length * sizeof(double);
-            byte[]? rented = byteCount <= MaxStackBufferSize ? null : ArrayPool<byte>.Shared.Rent(byteCount);
-            Span<byte> buffer = rented is null ? stackalloc byte[byteCount] : rented;
-
-            // Cast the buffer to Span<short> for byte order conversion
-            Span<long> dest = MemoryMarshal.Cast<byte, long>(buffer);
-            ReadOnlySpan<long> source = MemoryMarshal.Cast<double, long>(values); // float values are reinterpreted as int values
-            BinaryPrimitives.ReverseEndianness(source, dest);
-
-            _stream.Write(buffer);
-
-            if (rented is not null)
-                ArrayPool<byte>.Shared.Return(rented);
-        }
-        else
-        {
-            var bytes = MemoryMarshal.AsBytes(values);
-            _stream.Write(bytes);
-        }
-    }
+    // Same logic as Int32 (4 bytes) and Int64 (8 bytes) types
+    public void Write(ReadOnlySpan<float> values) => Write(MemoryMarshal.Cast<float, int>(values));
+    public void Write(ReadOnlySpan<double> values) => Write(MemoryMarshal.Cast<double, long>(values));
 
     #endregion
 }
