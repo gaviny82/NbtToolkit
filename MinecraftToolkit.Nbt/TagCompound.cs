@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -101,8 +102,11 @@ public class TagCompound : Tag, IDictionary<string, Tag>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void WriteBinaryPayload(NbtBinaryWriter writer)
     {
-        foreach ((string name, Tag tag) in this)
+        // Avoid boxing the dictionary enumerator to improve performance
+        Dictionary<string, Tag>.Enumerator enumerator = _data.GetEnumerator();
+        while (enumerator.MoveNext())
         {
+            (string name, Tag tag) = enumerator.Current;
             tag.WriteBinary(writer, name);
         }
     }
