@@ -119,9 +119,12 @@ public abstract class Tag
 
     #endregion
 
+    // Virtual function is used because many type checks are needed to determine which function to call
+    // when writing a tag to a stream. Virtual function call has a consistent overhead independent of
+    // the number of child types. // TODO: benchmark needed
     /// <summary>
     /// Writes the tag ID, name and payload using a given <see cref="NbtWriter"/>
     /// </summary>
     /// <param name="writer">The <see cref="NbtWriter"/> given</param>
-    internal abstract void WriteTag(NbtWriter writer, string tagName);
+    internal abstract void WriteBinary(NbtBinaryWriter writer, string tagName);
 }

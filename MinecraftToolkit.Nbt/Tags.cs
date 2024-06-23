@@ -20,11 +20,11 @@ public class TagByte : Tag
 
     public static implicit operator TagByte(sbyte value) => new TagByte(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.Byte);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.Byte);
+        writer.WriteString(tagName);
+        writer.Write(Value);
     }
 }
 
@@ -41,11 +41,11 @@ public class TagShort : Tag
 
     public static implicit operator TagShort(short value) => new TagShort(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.Short);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.Short);
+        writer.WriteString(tagName);
+        writer.Write(Value);
     }
 }
 
@@ -63,11 +63,11 @@ public class TagInt : Tag
 
     public static implicit operator TagInt(int value) => new TagInt(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.Int);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.Int);
+        writer.WriteString(tagName);
+        writer.Write(Value);
     }
 }
 
@@ -84,11 +84,11 @@ public class TagLong : Tag
 
     public static implicit operator TagLong(long value) => new TagLong(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.Long);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.Long);
+        writer.WriteString(tagName);
+        writer.Write(Value);
     }
 }
 
@@ -105,11 +105,11 @@ public class TagFloat : Tag
 
     public static implicit operator TagFloat(float value) => new TagFloat(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.Float);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.Float);
+        writer.WriteString(tagName);
+        writer.Write(Value);
     }
 }
 
@@ -126,11 +126,11 @@ public class TagDouble : Tag
 
     public static implicit operator TagDouble(double value) => new TagDouble(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.Double);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.Double);
+        writer.WriteString(tagName);
+        writer.Write(Value);
     }
 }
 
@@ -147,11 +147,11 @@ public class TagString : Tag
 
     public static implicit operator TagString(string value) => new TagString(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.String);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.String);
+        writer.WriteString(tagName);
+        writer.WriteString(Value);
     }
 }
 
@@ -168,11 +168,12 @@ public class TagByteArray : Tag
 
     public static implicit operator TagByteArray(sbyte[] value) => new TagByteArray(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.ByteArray);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.ByteArray);
+        writer.WriteString(tagName);
+        writer.Write(Value.Length);
+        writer.Write(Value);
     }
 }
 
@@ -189,11 +190,12 @@ public class TagIntArray : Tag
 
     public static implicit operator TagIntArray(int[] value) => new TagIntArray(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.IntArray);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.IntArray);
+        writer.WriteString(tagName);
+        writer.Write(Value.Length);
+        writer.Write(Value);
     }
 }
 
@@ -210,10 +212,11 @@ public class TagLongArray : Tag
 
     public static implicit operator TagLongArray(long[] value) => new TagLongArray(value);
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.LongArray);
-        writer.BinaryWriter.Write(tagName);
-        writer.BinaryWriter.Write(Value);
+        writer.Write((byte)TagId.LongArray);
+        writer.WriteString(tagName);
+        writer.Write(Value.Length);
+        writer.Write(Value);
     }
 }

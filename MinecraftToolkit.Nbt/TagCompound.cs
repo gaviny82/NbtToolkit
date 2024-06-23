@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -89,16 +90,20 @@ public class TagCompound : Tag, IDictionary<string, Tag>
 
     #endregion
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.Compound);
-        writer.BinaryWriter.Write(tagName);
+        writer.Write((byte)TagId.Compound);
+        writer.WriteString(tagName);
+        WriteBinaryPayload(writer);
+        writer.Write((byte)TagId.End);
+    }
 
-        foreach ((string name, Tag t) in this)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void WriteBinaryPayload(NbtBinaryWriter writer)
+    {
+        foreach ((string name, Tag tag) in this)
         {
-            t.WriteTag(writer, name);
+            tag.WriteBinary(writer, name);
         }
-
-        writer.Write(TagId.End);
     }
 }

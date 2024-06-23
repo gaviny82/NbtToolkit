@@ -57,43 +57,45 @@ internal sealed class NbtBinaryWriter : IDisposable
     #endregion
 
     // TODO: Use modified UTF-8 encoding
-    public void Write(ReadOnlySpan<char> chars)
+    public void WriteString(ReadOnlySpan<char> str)
     {
         Encoding encoding = Encoding.UTF8;
 
         // Reference: System.IO.BinaryWriter.Write(string)
 
         // Each char takes a maximum of 3 bytes
-        if (chars.Length <= MaxStackBufferSize / 3) // Use stack buffer for small number of characters
+        if (str.Length <= MaxStackBufferSize / 3) // Use stack buffer for small number of characters
         {
             Span<byte> buffer = stackalloc byte[MaxStackBufferSize];
-            int actualByteCount = encoding.GetBytes(chars, buffer); // Avoid 2-pass calculation
+            int actualByteCount = encoding.GetBytes(str, buffer); // Avoid 2-pass calculation
             Write((ushort)actualByteCount); // Guaranteed to be less than ushort.MaxValue
             _stream.Write(buffer);
         }
-        else if (chars.Length <= MaxNbtStringByteCount / 3) // Use ArrayPool buffer for medium number of characters
+        else if (str.Length <= MaxNbtStringByteCount / 3) // Use ArrayPool buffer for medium number of characters
         {
-            byte[] rented = ArrayPool<byte>.Shared.Rent(chars.Length * 3);
-            int actualByteCount = encoding.GetBytes(chars, rented); // Avoid 2-pass calculation
+            byte[] rented = ArrayPool<byte>.Shared.Rent(str.Length * 3);
+            int actualByteCount = encoding.GetBytes(str, rented); // Avoid 2-pass calculation
             Write((ushort)actualByteCount); // Guaranteed to be less than ushort.MaxValue
             _stream.Write(rented);
             ArrayPool<byte>.Shared.Return(rented);
         }
         else // Fall back: use 2-pass calculation for large number of characters
         {
-            int actualBytecount = encoding.GetByteCount(chars);
+            int actualBytecount = encoding.GetByteCount(str);
             if (actualBytecount > MaxNbtStringByteCount)
-                throw new ArgumentException("String is too long", nameof(chars));
+                throw new ArgumentException("String is too long", nameof(str));
             Write((ushort)actualBytecount);
 
             byte[] buffer = ArrayPool<byte>.Shared.Rent(actualBytecount);
-            encoding.GetBytes(chars, buffer);
+            encoding.GetBytes(str, buffer);
             _stream.Write(buffer);
             ArrayPool<byte>.Shared.Return(buffer);
         }
     }
 
     #region Writing a single value
+
+    public void Write(byte value) => _stream.WriteByte(value);
 
     public void Write(sbyte value) => _stream.WriteByte((byte)value);
 

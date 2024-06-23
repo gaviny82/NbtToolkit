@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection.PortableExecutable;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using static MinecraftToolkit.Nbt.Parsing.NbtReader;
 
 namespace MinecraftToolkit.Nbt.Parsing;
 
@@ -19,8 +19,8 @@ public partial class NbtWriter : IDisposable
     {
         Stream = compression switch
         {
-            NbtCompression.GZip => new GZipStream(stream, CompressionMode.Decompress),
-            NbtCompression.ZLib => new ZLibStream(stream, CompressionMode.Decompress),
+            NbtCompression.GZip => new GZipStream(stream, CompressionMode.Compress),
+            NbtCompression.ZLib => new ZLibStream(stream, CompressionMode.Compress),
             NbtCompression.None => stream,
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
@@ -29,15 +29,7 @@ public partial class NbtWriter : IDisposable
 
     public void WriteRootTag(TagCompound tag)
     {
-        tag.WriteTag(this, "");
-    }
-
-    internal void Write(TagId id)
-    {
-        byte data = (byte)id;
-        if (data > (byte)TagId.LongArray)
-            throw new ArgumentException("Invalid TagId", nameof(id));
-        _writer.Write(data);
+        tag.WriteBinary(_writer, "");
     }
 
     public void Dispose()

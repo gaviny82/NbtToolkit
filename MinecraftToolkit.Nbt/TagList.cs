@@ -2,6 +2,8 @@
 using System;
 using System.Collections;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -132,64 +134,111 @@ public sealed class TagList<T> : TagList, IList<T> where T : notnull
 
     #endregion
 
-    internal sealed override void WriteTag(NbtWriter writer, string tagName)
+    internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
-        writer.Write(TagId.List);
-        writer.BinaryWriter.Write(tagName);
+        writer.Write((byte)TagId.List);
+        writer.WriteString(tagName);
+    }
 
-        // TODO: payload
-        switch (ItemType)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void WriteBinaryPayload(NbtBinaryWriter writer)
+    {
+        if (this is TagList<sbyte> byteList)
         {
-            case TagType.Byte:
-                writer.Write(TagId.Byte);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.Short:
-                writer.Write(TagId.Short);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.Int:
-                writer.Write(TagId.Int);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.Long:
-                writer.Write(TagId.Long);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.Float:
-                writer.Write(TagId.Float);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.Double:
-                writer.Write(TagId.Double);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.String:
-                writer.Write(TagId.String);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.List:
-                writer.Write(TagId.List);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.Compound:
-                writer.Write(TagId.Compound);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.ByteArray:
-                writer.Write(TagId.ByteArray);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.IntArray:
-                writer.Write(TagId.IntArray);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            case TagType.LongArray:
-                writer.Write(TagId.LongArray);
-                writer.BinaryWriter.Write(_items.Count);
-                break;
-            default:
-                throw new InvalidOperationException("Invalid TagList type");
+            writer.Write((byte)TagId.Byte);
+            writer.Write(byteList._items.Count);
+            writer.Write(CollectionsMarshal.AsSpan(byteList._items));
+        }
+        else if (this is TagList<short> shortList)
+        {
+            writer.Write((byte)TagId.Short);
+            writer.Write(shortList._items.Count);
+            writer.Write(CollectionsMarshal.AsSpan(shortList._items));
+        }
+        else if (this is TagList<int> intList)
+        {
+            writer.Write((byte)TagId.Int);
+            writer.Write(intList._items.Count);
+            writer.Write(CollectionsMarshal.AsSpan(intList._items));
+        }
+        else if (this is TagList<long> longList)
+        {
+            writer.Write((byte)TagId.Long);
+            writer.Write(longList._items.Count);
+            writer.Write(CollectionsMarshal.AsSpan(longList._items));
+        }
+        else if (this is TagList<float> floatList)
+        {
+            writer.Write((byte)TagId.Float);
+            writer.Write(floatList._items.Count);
+            writer.Write(CollectionsMarshal.AsSpan(floatList._items));
+        }
+        else if (this is TagList<double> doubleList)
+        {
+            writer.Write((byte)TagId.Double);
+            writer.Write(doubleList._items.Count);
+            writer.Write(CollectionsMarshal.AsSpan(doubleList._items));
+        }
+        else if (this is TagList<string> stringList)
+        {
+            writer.Write((byte)TagId.String);
+            writer.Write(stringList._items.Count);
+            foreach (var item in stringList._items)
+            {
+                writer.WriteString(item);
+            }
+        }
+        else if (this is TagList<TagCompound> compoundList)
+        {
+            writer.Write((byte)TagId.Compound);
+            writer.Write(compoundList._items.Count);
+            foreach (var item in compoundList._items)
+            {
+                item.WriteBinaryPayload(writer);
+            }
+        }
+        else if (this is TagList<TagList<T>> listOfLists)
+        {
+            writer.Write((byte)TagId.List);
+            writer.Write(listOfLists._items.Count);
+            foreach (var item in listOfLists._items)
+            {
+                item.WriteBinaryPayload(writer);
+            }
+        }
+        else if (this is TagList<sbyte[]> listOfByteArrays)
+        {
+            writer.Write((byte)TagId.ByteArray);
+            writer.Write(listOfByteArrays._items.Count);
+            foreach (var item in listOfByteArrays._items)
+            {
+                writer.Write(item.Length);
+                writer.Write(item);
+            }
+        }
+        else if (this is TagList<int[]> listOfIntArrays)
+        {
+            writer.Write((byte)TagId.IntArray);
+            writer.Write(listOfIntArrays._items.Count);
+            foreach (var item in listOfIntArrays._items)
+            {
+                writer.Write(item.Length);
+                writer.Write(item);
+            }
+        }
+        else if (this is TagList<long[]> listOfLongArrays)
+        {
+            writer.Write((byte)TagId.LongArray);
+            writer.Write(listOfLongArrays._items.Count);
+            foreach (var item in listOfLongArrays._items)
+            {
+                writer.Write(item.Length);
+                writer.Write(item);
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException("Invalid element type of TagList");
         }
     }
 }
