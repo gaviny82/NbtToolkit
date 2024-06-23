@@ -13,9 +13,7 @@ public partial class NbtWriter : IDisposable
 {
     public Stream Stream { get; init; }
 
-    internal DefaultEndiannessBinaryWriter BinaryWriter => _writer;
-
-    private readonly DefaultEndiannessBinaryWriter _writer;
+    private readonly NbtBinaryWriter _writer;
 
     public NbtWriter(Stream stream, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
@@ -26,9 +24,7 @@ public partial class NbtWriter : IDisposable
             NbtCompression.None => stream,
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
-        _writer = BitConverter.IsLittleEndian
-            ? new ReversedEndiannessBinaryWriter(Stream, Encoding.UTF8, leaveOpen)
-            : new DefaultEndiannessBinaryWriter(Stream, Encoding.UTF8, leaveOpen);
+        _writer = new NbtBinaryWriter(Stream, leaveOpen);
     }
 
     public void WriteRootTag(TagCompound tag)
