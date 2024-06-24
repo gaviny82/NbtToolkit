@@ -17,16 +17,16 @@ public partial class NbtReader : IDisposable
 
     private readonly NbtBinaryReader _reader;
 
-    public NbtReader(Stream stream, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
+    public NbtReader(Stream input, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
         Stream = compression switch
         {
-            NbtCompression.GZip => new GZipStream(stream, CompressionMode.Decompress),
-            NbtCompression.ZLib => new ZLibStream(stream, CompressionMode.Decompress),
-            NbtCompression.None => stream,
+            NbtCompression.GZip => new GZipStream(input, CompressionMode.Decompress),
+            NbtCompression.ZLib => new ZLibStream(input, CompressionMode.Decompress),
+            NbtCompression.None => input,
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
-        _reader = new NbtBinaryReader(stream, leaveOpen);
+        _reader = new NbtBinaryReader(Stream, leaveOpen);
     }
 
     public TagCompound ReadRootTag()

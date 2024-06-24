@@ -15,13 +15,13 @@ public partial class NbtWriter : IDisposable
 
     private readonly NbtBinaryWriter _writer;
 
-    public NbtWriter(Stream stream, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
+    public NbtWriter(Stream output, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
         Stream = compression switch
         {
-            NbtCompression.GZip => new GZipStream(stream, CompressionMode.Compress),
-            NbtCompression.ZLib => new ZLibStream(stream, CompressionMode.Compress),
-            NbtCompression.None => stream,
+            NbtCompression.GZip => new GZipStream(output, CompressionMode.Compress),
+            NbtCompression.ZLib => new ZLibStream(output, CompressionMode.Compress),
+            NbtCompression.None => output,
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
         _writer = new NbtBinaryWriter(Stream, leaveOpen);
