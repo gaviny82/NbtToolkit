@@ -16,8 +16,8 @@ public class ParseLevelDatFile
     private const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
     private MemoryStream _stream = null!;
 
-    private NbtReader_StateMachineImpl _nbtReaderMct = null!;
-    private NbtReader _nbtRecursiveReaderMct = null!;
+    private NbtReader_StateMachineImpl _nbtReader_StateMachine = null!;
+    private NbtReader _nbtReader = null!;
     private fNbt.NbtFile _nbtFilefNbt = null!;
     private Substrate.Nbt.NbtTree _nbtTreeSubstrate = null!;
 
@@ -35,8 +35,8 @@ public class ParseLevelDatFile
         _stream = new MemoryStream(bytes);
 
         // Prepare parsers
-        _nbtReaderMct = new NbtReader_StateMachineImpl(_stream, NbtCompression.None, true);
-        _nbtRecursiveReaderMct = new NbtReader(_stream, NbtCompression.None, true);
+        _nbtReader_StateMachine = new NbtReader_StateMachineImpl(_stream, NbtCompression.None, true);
+        _nbtReader = new NbtReader(_stream, NbtCompression.None, true);
         _nbtFilefNbt = new fNbt.NbtFile();
         _nbtTreeSubstrate = new Substrate.Nbt.NbtTree();
     }
@@ -45,22 +45,22 @@ public class ParseLevelDatFile
     public void GlobalCleanup()
     {
         _stream.Dispose();
-        _nbtReaderMct.Dispose();
-        _nbtRecursiveReaderMct.Dispose();
+        _nbtReader_StateMachine.Dispose();
+        _nbtReader.Dispose();
     }
 
     [Benchmark(Baseline = true)]
-    public void Parse_MCT()
+    public void Parse()
     {
         _stream.Position = 0;
-        _nbtReaderMct.ReadRootTag();
+        _nbtReader.ReadRootTag();
     }
 
     [Benchmark]
-    public void Parse_MCT_Recursive()
+    public void Parse_StateMachine()
     {
         _stream.Position = 0;
-        _nbtRecursiveReaderMct.ReadRootTag();
+        _nbtReader_StateMachine.ReadRootTag();
     }
 
     [Benchmark]

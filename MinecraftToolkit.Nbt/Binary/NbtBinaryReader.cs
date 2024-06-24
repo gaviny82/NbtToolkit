@@ -6,14 +6,14 @@ using System.Text;
 
 namespace MinecraftToolkit.Nbt.Binary;
 
-public class NbtBinaryReader : IDisposable
+public sealed class NbtBinaryReader : BinaryReader
 {
     private const int MaxStackBufferSize = 128;
 
     private readonly Stream _stream;
     private readonly bool _leaveOpen;
 
-    public NbtBinaryReader(Stream input, bool leaveOpen = false)
+    public NbtBinaryReader(Stream input, bool leaveOpen = false) : base(input, Encoding.UTF8, leaveOpen)
     {
         if (!input.CanRead)
             throw new ArgumentException("Stream is not readable", nameof(input));
@@ -34,7 +34,7 @@ public class NbtBinaryReader : IDisposable
 
     #region Reading a single value
 
-    public string ReadString()
+    public sealed override string ReadString()
     {
         ushort length = ReadUInt16();
 
@@ -64,66 +64,75 @@ public class NbtBinaryReader : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int InternalReadByte()
+    public override byte ReadByte() => base.ReadByte();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override sbyte ReadSByte() => base.ReadSByte();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override ushort ReadUInt16()
     {
-        int b = _stream.ReadByte();
-        if (b == -1)
-            throw new EndOfStreamException();
-        return b;
+        ushort value = base.ReadUInt16();
+        if (BitConverter.IsLittleEndian)
+            return BinaryPrimitives.ReverseEndianness(value);
+        else
+            return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte ReadByte() => (byte)InternalReadByte();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public sbyte ReadSByte() => (sbyte)InternalReadByte();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ushort ReadUInt16()
+    public override short ReadInt16()
     {
-        Span<byte> buffer = stackalloc byte[sizeof(ushort)];
-        _stream.ReadExactly(buffer);
-        return BinaryPrimitives.ReadUInt16BigEndian(buffer);
+        short value = base.ReadInt16();
+        if (BitConverter.IsLittleEndian)
+            return BinaryPrimitives.ReverseEndianness(value);
+        else
+            return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short ReadInt16()
+    public override int ReadInt32()
     {
-        Span<byte> buffer = stackalloc byte[sizeof(short)];
-        _stream.ReadExactly(buffer);
-        return BinaryPrimitives.ReadInt16BigEndian(buffer);
+        int value = base.ReadInt32();
+        if (BitConverter.IsLittleEndian)
+            return BinaryPrimitives.ReverseEndianness(value);
+        else
+            return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int ReadInt32()
+    public override long ReadInt64()
     {
-        Span<byte> buffer = stackalloc byte[sizeof(int)];
-        _stream.ReadExactly(buffer);
-        return BinaryPrimitives.ReadInt32BigEndian(buffer);
+        long value = base.ReadInt64();
+        if (BitConverter.IsLittleEndian)
+            return BinaryPrimitives.ReverseEndianness(value);
+        else
+            return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public long ReadInt64()
+    public override float ReadSingle()
     {
-        Span<byte> buffer = stackalloc byte[sizeof(long)];
-        _stream.ReadExactly(buffer);
-        return BinaryPrimitives.ReadInt64BigEndian(buffer);
+        float value = base.ReadSingle();
+        if (BitConverter.IsLittleEndian)
+        {
+            int valueAsInt = BinaryPrimitives.ReverseEndianness(Unsafe.As<float, int>(ref value));
+            return Unsafe.As<int, float>(ref valueAsInt);
+        }
+        else
+            return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float ReadSingle()
+    public override double ReadDouble()
     {
-        Span<byte> buffer = stackalloc byte[sizeof(float)];
-        _stream.ReadExactly(buffer);
-        return BinaryPrimitives.ReadSingleBigEndian(buffer);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double ReadDouble()
-    {
-        Span<byte> buffer = stackalloc byte[sizeof(double)];
-        _stream.ReadExactly(buffer);
-        return BinaryPrimitives.ReadDoubleBigEndian(buffer);
+        double value = base.ReadDouble();
+        if (BitConverter.IsLittleEndian)
+        {
+            long valueAsLong = BinaryPrimitives.ReverseEndianness(Unsafe.As<double, long>(ref value));
+            return Unsafe.As<long, double>(ref valueAsLong);
+        }
+        else
+            return value;
     }
 
     #endregion
