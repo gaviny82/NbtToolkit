@@ -143,27 +143,33 @@ public partial class NbtReader : IDisposable
             case TagId.End:
                 throw new InvalidDataException("Invalid TAG_LIST tag ID End");
             case TagId.Byte:
-                TagList<sbyte> sbytes = new(length);
+                TagList<sbyte> sbytes = new(0);
+                CollectionsMarshal.SetCount(sbytes._items, length);
                 _reader.ReadInt8Span(CollectionsMarshal.AsSpan(sbytes._items));
                 return sbytes;
             case TagId.Short:
-                TagList<short> shorts = new(length);
+                TagList<short> shorts = new(0);
+                CollectionsMarshal.SetCount(shorts._items, length);
                 _reader.ReadInt16Span(CollectionsMarshal.AsSpan(shorts._items));
                 return shorts;
             case TagId.Int:
-                TagList<int> ints = new(length);
+                TagList<int> ints = new(0);
+                CollectionsMarshal.SetCount(ints._items, length);
                 _reader.ReadInt32Span(CollectionsMarshal.AsSpan(ints._items));
                 return ints;
             case TagId.Long:
-                TagList<long> longs = new(length);
+                TagList<long> longs = new(0);
+                CollectionsMarshal.SetCount(longs._items, length);
                 _reader.ReadInt64Span(CollectionsMarshal.AsSpan(longs._items));
                 return longs;
             case TagId.Float:
-                TagList<float> floats = new(length);
+                TagList<float> floats = new(0);
+                CollectionsMarshal.SetCount(floats._items, length);
                 _reader.ReadFloatSpan(CollectionsMarshal.AsSpan(floats._items));
                 return floats;
             case TagId.Double:
-                TagList<double> doubles = new(length);
+                TagList<double> doubles = new(0);
+                CollectionsMarshal.SetCount(doubles._items, length);
                 _reader.ReadDoubleSpan(CollectionsMarshal.AsSpan(doubles._items));
                 return doubles;
             case TagId.ByteArray:

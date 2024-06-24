@@ -22,16 +22,6 @@ public sealed class NbtBinaryReader : BinaryReader
         _leaveOpen = leaveOpen;
     }
 
-    #region Stream operations
-
-    public void Dispose()
-    {
-        if (!_leaveOpen)
-            _stream.Close();
-    }
-
-    #endregion
-
     #region Reading a single value
 
     public sealed override string ReadString()
