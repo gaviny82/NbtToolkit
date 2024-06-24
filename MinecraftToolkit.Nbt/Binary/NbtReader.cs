@@ -15,7 +15,7 @@ public partial class NbtReader : IDisposable
 {
     public Stream Stream { get; init; }
 
-    private readonly DefaultEndiannessBinaryReader _reader;
+    private readonly NbtBinaryReader _reader;
 
     public NbtReader(Stream stream, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
@@ -26,9 +26,7 @@ public partial class NbtReader : IDisposable
             NbtCompression.None => stream,
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
-        _reader = BitConverter.IsLittleEndian
-            ? new ReversedEndiannessBinaryReader(Stream, Encoding.UTF8, leaveOpen)
-            : new DefaultEndiannessBinaryReader(Stream, Encoding.UTF8, leaveOpen);
+        _reader = new NbtBinaryReader(stream, leaveOpen);
     }
 
     public TagCompound ReadRootTag()
@@ -67,12 +65,12 @@ public partial class NbtReader : IDisposable
                 TagId.Long => new TagLong(_reader.ReadInt64()),
                 TagId.Float => new TagFloat(_reader.ReadSingle()),
                 TagId.Double => new TagDouble(_reader.ReadDouble()),
-                TagId.ByteArray => new TagByteArray(_reader.ReadSByteArray()),
+                TagId.ByteArray => new TagByteArray(ReadSByteArray()),
                 TagId.String => new TagString(_reader.ReadString()),
                 TagId.List => ReadTagList(), // May be recursive
                 TagId.Compound => ReadTagCompound(), // Recursive
-                TagId.IntArray => new TagIntArray(_reader.ReadInt32Array()),
-                TagId.LongArray => new TagLongArray(_reader.ReadInt64Array()),
+                TagId.IntArray => new TagIntArray(ReadInt32Array()),
+                TagId.LongArray => new TagLongArray(ReadInt64Array()),
                 _ => throw new InvalidDataException($"Invalid tag ID {tagId}")
             };
 
@@ -93,7 +91,45 @@ public partial class NbtReader : IDisposable
         return tagType;
     }
 
+    /// <summary>
+    /// Reads a signed byte array prefixed by an <see cref="int"/> length
+    /// </summary>
+    /// <returns>A signed byte array</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public sbyte[] ReadSByteArray()
+    {
+        int length = _reader.ReadInt32();
+        sbyte[] data = new sbyte[length];
+        _reader.ReadInt8Span(data);
+        return data;
+    }
+
+    /// <summary>
+    /// Reads an int array prefixed by an <see cref="int"/> length
+    /// </summary>
+    /// <returns>An int array</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual int[] ReadInt32Array()
+    {
+        int length = _reader.ReadInt32();
+        int[] data = new int[length];
+        _reader.ReadInt32Span(data);
+        return data;
+    }
+
+    /// <summary>
+    /// Reads a long array prefixed by an <see cref="int"/> length
+    /// </summary>
+    /// <returns>A long array</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual long[] ReadInt64Array()
+    {
+        int length = _reader.ReadInt32();
+        long[] data = new long[length];
+        _reader.ReadInt64Span(data);
+        return data;
+    }
+
     internal TagList ReadTagList()
     {
         TagId tagId = ReadTagId();
@@ -108,50 +144,32 @@ public partial class NbtReader : IDisposable
                 throw new InvalidDataException("Invalid TAG_LIST tag ID End");
             case TagId.Byte:
                 TagList<sbyte> sbytes = new(length);
-                var sbytesByteSpan = MemoryMarshal.AsBytes(CollectionsMarshal.AsSpan(sbytes._items));
-                _reader.Read(sbytesByteSpan);
+                _reader.ReadInt8Span(CollectionsMarshal.AsSpan(sbytes._items));
                 return sbytes;
             case TagId.Short:
                 TagList<short> shorts = new(length);
-                var shortsSpan = CollectionsMarshal.AsSpan(shorts._items);
-                var shortsByteSpan = MemoryMarshal.AsBytes(shortsSpan);
-                _reader.Read(shortsByteSpan);
-                BinaryPrimitives.ReverseEndianness(shortsSpan, shortsSpan);
+                _reader.ReadInt16Span(CollectionsMarshal.AsSpan(shorts._items));
                 return shorts;
             case TagId.Int:
                 TagList<int> ints = new(length);
-                var intsSpan = CollectionsMarshal.AsSpan(ints._items);
-                var intsByteSpan = MemoryMarshal.AsBytes(intsSpan);
-                _reader.Read(intsByteSpan);
-                BinaryPrimitives.ReverseEndianness(intsSpan, intsSpan);
+                _reader.ReadInt32Span(CollectionsMarshal.AsSpan(ints._items));
                 return ints;
             case TagId.Long:
                 TagList<long> longs = new(length);
-                var longsSpan = CollectionsMarshal.AsSpan(longs._items);
-                var longsByteSpan = MemoryMarshal.AsBytes(longsSpan);
-                _reader.Read(longsByteSpan);
-                BinaryPrimitives.ReverseEndianness(longsSpan, longsSpan);
+                _reader.ReadInt64Span(CollectionsMarshal.AsSpan(longs._items));
                 return longs;
             case TagId.Float:
                 TagList<float> floats = new(length);
-                var floatsSpan = CollectionsMarshal.AsSpan(floats._items);
-                var floatsByteSpan = MemoryMarshal.AsBytes(floatsSpan);
-                _reader.Read(floatsByteSpan);
-                Span<int> floatsAsIntSpan = MemoryMarshal.Cast<float, int>(floatsSpan);
-                BinaryPrimitives.ReverseEndianness(floatsAsIntSpan, floatsAsIntSpan);
+                _reader.ReadFloatSpan(CollectionsMarshal.AsSpan(floats._items));
                 return floats;
             case TagId.Double:
                 TagList<double> doubles = new(length);
-                var doublesSpan = CollectionsMarshal.AsSpan(doubles._items);
-                var doublesByteSpan = MemoryMarshal.AsBytes(doublesSpan);
-                _reader.Read(doublesByteSpan);
-                Span<long> doublesAsLongSpan = MemoryMarshal.Cast<double, long>(doublesSpan);
-                BinaryPrimitives.ReverseEndianness(doublesAsLongSpan, doublesAsLongSpan);
+                _reader.ReadDoubleSpan(CollectionsMarshal.AsSpan(doubles._items));
                 return doubles;
             case TagId.ByteArray:
                 TagList<TagByteArray> byteArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    byteArrays.Add(new TagByteArray(_reader.ReadSByteArray()));
+                    byteArrays.Add(new TagByteArray(ReadSByteArray()));
                 return byteArrays;
             case TagId.String:
                 TagList<string> strings = new(length);
@@ -171,12 +189,12 @@ public partial class NbtReader : IDisposable
             case TagId.IntArray:
                 TagList<TagIntArray> intArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    intArrays.Add(new TagIntArray(_reader.ReadInt32Array()));
+                    intArrays.Add(new TagIntArray(ReadInt32Array()));
                 return intArrays;
             case TagId.LongArray:
                 TagList<TagLongArray> longArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    longArrays.Add(new TagLongArray(_reader.ReadInt64Array()));
+                    longArrays.Add(new TagLongArray(ReadInt64Array()));
                 return longArrays;
             default:
                 throw new InvalidDataException($"Invalid tag ID {tagId}");

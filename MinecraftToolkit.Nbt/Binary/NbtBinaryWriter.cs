@@ -15,7 +15,7 @@ internal sealed class NbtBinaryWriter : IDisposable
     private readonly Stream _stream;
     private readonly bool _leaveOpen;
 
-    public NbtBinaryWriter(Stream output, bool leaveOpen)
+    public NbtBinaryWriter(Stream output, bool leaveOpen = false)
     {
         if (!output.CanWrite)
             throw new ArgumentException("Stream is not writable", nameof(output));
@@ -56,6 +56,10 @@ internal sealed class NbtBinaryWriter : IDisposable
 
     #endregion
 
+    // TODO: try-finally for ArrayPool return
+
+    #region Writing a single value
+
     // TODO: Use modified UTF-8 encoding
     public void WriteString(ReadOnlySpan<char> str)
     {
@@ -92,8 +96,6 @@ internal sealed class NbtBinaryWriter : IDisposable
             ArrayPool<byte>.Shared.Return(buffer);
         }
     }
-
-    #region Writing a single value
 
     public void Write(byte value) => _stream.WriteByte(value);
 
