@@ -1,4 +1,4 @@
-﻿using MinecraftToolkit.Nbt.Parsing;
+﻿using MinecraftToolkit.Nbt.Binary;
 
 string levelPath = Console.ReadLine() ?? throw new InvalidDataException();
 using var fileStream = File.OpenRead(levelPath);

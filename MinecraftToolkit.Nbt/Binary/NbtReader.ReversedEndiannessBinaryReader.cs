@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace MinecraftToolkit.Nbt.Parsing;
+namespace MinecraftToolkit.Nbt.Binary;
 
 public partial class NbtReader
 {

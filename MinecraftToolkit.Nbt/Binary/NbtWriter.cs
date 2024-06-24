@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt.Parsing;
+namespace MinecraftToolkit.Nbt.Binary;
 
 public partial class NbtWriter : IDisposable
 {

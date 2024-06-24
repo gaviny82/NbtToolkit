@@ -1,4 +1,4 @@
-﻿using MinecraftToolkit.Nbt.Parsing;
+﻿using MinecraftToolkit.Nbt.Binary;
 using System;
 using System.Collections.Generic;
 using System.Linq;

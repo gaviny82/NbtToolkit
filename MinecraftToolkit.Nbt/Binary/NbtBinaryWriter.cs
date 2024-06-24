@@ -4,7 +4,7 @@ using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MinecraftToolkit.Nbt.Parsing;
+namespace MinecraftToolkit.Nbt.Binary;
 
 internal sealed class NbtBinaryWriter : IDisposable
 {
@@ -129,7 +129,7 @@ internal sealed class NbtBinaryWriter : IDisposable
 
     public void Write(float value)
     {
-        Span<byte> buffer  = stackalloc byte[sizeof(float)];
+        Span<byte> buffer = stackalloc byte[sizeof(float)];
         BinaryPrimitives.WriteSingleBigEndian(buffer, value);
         _stream.Write(buffer);
     }
