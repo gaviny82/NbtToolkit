@@ -26,68 +26,48 @@ public class TagCompound : Tag, IDictionary<string, Tag>
 
     public Tag this[string key] { get => ((IDictionary<string, Tag>)_data)[key]; set => ((IDictionary<string, Tag>)_data)[key] = value; }
 
-    public ICollection<string> Keys => ((IDictionary<string, Tag>)_data).Keys;
+    public Dictionary<string, Tag>.KeyCollection Keys => _data.Keys;
 
-    public ICollection<Tag> Values => ((IDictionary<string, Tag>)_data).Values;
+    ICollection<string> IDictionary<string, Tag>.Keys => ((IDictionary<string, Tag>)_data).Keys;
 
-    public int Count => ((ICollection<KeyValuePair<string, Tag>>)_data).Count;
+    public Dictionary<string, Tag>.ValueCollection Values => _data.Values;
 
-    public bool IsReadOnly => ((ICollection<KeyValuePair<string, Tag>>)_data).IsReadOnly;
+    ICollection<Tag> IDictionary<string, Tag>.Values => ((IDictionary<string, Tag>)_data).Values;
 
-    public void Add(string key, Tag value)
-    {
-        ((IDictionary<string, Tag>)_data).Add(key, value);
-    }
+    public int Count => _data.Count;
 
-    public void Add(KeyValuePair<string, Tag> item)
-    {
-        ((ICollection<KeyValuePair<string, Tag>>)_data).Add(item);
-    }
+    bool ICollection<KeyValuePair<string, Tag>>.IsReadOnly => ((ICollection<KeyValuePair<string, Tag>>)_data).IsReadOnly;
 
-    public void Clear()
-    {
-        ((ICollection<KeyValuePair<string, Tag>>)_data).Clear();
-    }
+    public void Add(string key, Tag value) => _data.Add(key, value);
 
-    public bool Contains(KeyValuePair<string, Tag> item)
-    {
-        return ((ICollection<KeyValuePair<string, Tag>>)_data).Contains(item);
-    }
+    void ICollection<KeyValuePair<string, Tag>>.Add(KeyValuePair<string, Tag> item)
+        => ((ICollection<KeyValuePair<string, Tag>>)_data).Add(item);
 
-    public bool ContainsKey(string key)
-    {
-        return ((IDictionary<string, Tag>)_data).ContainsKey(key);
-    }
+    public void Clear() => _data.Clear();
 
-    public void CopyTo(KeyValuePair<string, Tag>[] array, int arrayIndex)
-    {
-        ((ICollection<KeyValuePair<string, Tag>>)_data).CopyTo(array, arrayIndex);
-    }
+    public bool Contains(KeyValuePair<string, Tag> item) => _data.Contains(item);
 
-    public IEnumerator<KeyValuePair<string, Tag>> GetEnumerator()
-    {
-        return ((IEnumerable<KeyValuePair<string, Tag>>)_data).GetEnumerator();
-    }
+    public bool ContainsKey(string key) => _data.ContainsKey(key);
 
-    public bool Remove(string key)
-    {
-        return ((IDictionary<string, Tag>)_data).Remove(key);
-    }
+    void ICollection<KeyValuePair<string, Tag>>.CopyTo(KeyValuePair<string, Tag>[] array, int arrayIndex)
+        => ((ICollection<KeyValuePair<string, Tag>>)_data).CopyTo(array, arrayIndex);
 
-    public bool Remove(KeyValuePair<string, Tag> item)
-    {
-        return ((ICollection<KeyValuePair<string, Tag>>)_data).Remove(item);
-    }
+    // Avoid boxing the dictionary enumerator to improve performance
+    public Dictionary<string, Tag>.Enumerator GetEnumerator()
+        => _data.GetEnumerator();
+
+    IEnumerator<KeyValuePair<string, Tag>> IEnumerable<KeyValuePair<string, Tag>>.GetEnumerator()
+        => ((IEnumerable<KeyValuePair<string, Tag>>)_data).GetEnumerator();
+
+    public bool Remove(string key) => _data.Remove(key);
+
+    bool ICollection<KeyValuePair<string, Tag>>.Remove(KeyValuePair<string, Tag> item)
+        => ((ICollection<KeyValuePair<string, Tag>>)_data).Remove(item);
 
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out Tag value)
-    {
-        return ((IDictionary<string, Tag>)_data).TryGetValue(key, out value);
-    }
+        => _data.TryGetValue(key, out value);
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return ((IEnumerable)_data).GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_data).GetEnumerator();
 
     #endregion
 
@@ -102,11 +82,8 @@ public class TagCompound : Tag, IDictionary<string, Tag>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void WriteBinaryPayload(NbtBinaryWriter writer)
     {
-        // Avoid boxing the dictionary enumerator to improve performance
-        Dictionary<string, Tag>.Enumerator enumerator = _data.GetEnumerator();
-        while (enumerator.MoveNext())
+        foreach ((string name, Tag tag) in _data)
         {
-            (string name, Tag tag) = enumerator.Current;
             tag.WriteBinary(writer, name);
         }
     }
