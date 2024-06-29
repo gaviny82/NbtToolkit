@@ -11,11 +11,14 @@ using System.Threading.Tasks;
 
 namespace MinecraftToolkit.Nbt;
 
+/// <summary>
+/// A compound NBT tag
+/// </summary>
 public class TagCompound : Tag, IDictionary<string, Tag>
 {
     public override TagType Type => TagType.Compound;
 
-    private Dictionary<string, Tag> _data = new();
+    private readonly Dictionary<string, Tag> _data = new();
 
     public TagCompound()
     {
@@ -71,6 +74,8 @@ public class TagCompound : Tag, IDictionary<string, Tag>
 
     #endregion
 
+    #region Tag: writing binary
+
     internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
     {
         writer.Write((byte)TagId.Compound);
@@ -87,4 +92,6 @@ public class TagCompound : Tag, IDictionary<string, Tag>
             tag.WriteBinary(writer, name);
         }
     }
+
+    #endregion
 }

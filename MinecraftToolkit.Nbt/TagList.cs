@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace MinecraftToolkit.Nbt;
 
 /// <summary>
-/// Base class for all list tags
+/// Base class of all NBT list tags.
 /// </summary>
 public abstract class TagList : Tag
 {
@@ -38,6 +38,10 @@ public abstract class TagList : Tag
     };
 }
 
+/// <summary>
+/// A list tag which contains NBT tags of a specific type.
+/// </summary>
+/// <typeparam name="T">Type of the values in the list.</typeparam>
 public sealed class TagList<T> : TagList, IList<T> where T : notnull
 {
     public override TagType ItemType

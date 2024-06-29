@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MinecraftToolkit.Nbt.Binary;
 
-public sealed class NbtBinaryReader : BinaryReader
+internal sealed class NbtBinaryReader : BinaryReader
 {
     private const int MaxStackBufferSize = 128;
 

@@ -13,10 +13,20 @@ namespace MinecraftToolkit.Nbt.Binary;
 
 public partial class NbtReader : IDisposable
 {
+    /// <summary>
+    /// The <see cref="System.IO.Stream"/> from which this <see cref="NbtReader"/> reads.
+    /// </summary>
     public Stream Stream { get; init; }
 
     private readonly NbtBinaryReader _reader;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NbtReader"/> class for the specified stream.
+    /// </summary>
+    /// <param name="input">The <see cref="System.IO.Stream"/> from which this <see cref="NbtReader"/> reads.</param>
+    /// <param name="compression">Compression type of the data written to the <paramref name="input"/> stream.</param>
+    /// <param name="leaveOpen">If the <paramref name="input"/> stream is left open when this <see cref="NbtReader"/> is disposed.</param>
+    /// <exception cref="ArgumentException">Invalid <see cref="NbtCompression"/> provided by <paramref name="compression"/>.</exception>
     public NbtReader(Stream input, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
     {
         Stream = compression switch
@@ -29,6 +39,11 @@ public partial class NbtReader : IDisposable
         _reader = new NbtBinaryReader(Stream, leaveOpen);
     }
 
+    /// <summary>
+    /// Reads the root tag as a <see cref="TagCompound"/> from <see cref="Stream"/> using NBT binary format.
+    /// </summary>
+    /// <returns>The root tag read from <see cref="Stream"/>.</returns>
+    /// <exception cref="InvalidDataException">Data in <see cref="Stream"/> has an invalid format.</exception>
     public TagCompound ReadRootTag()
     {
         TagId tagId = ReadTagId();
@@ -40,7 +55,7 @@ public partial class NbtReader : IDisposable
         return ReadTagCompound();
     }
 
-    internal TagCompound ReadTagCompound()
+    private TagCompound ReadTagCompound()
     {
         var tagCompound = new TagCompound();
         do
@@ -80,7 +95,7 @@ public partial class NbtReader : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal TagId ReadTagId()
+    private TagId ReadTagId()
     {
         byte tagId = _reader.ReadByte();
         TagId tagType = tagId switch
@@ -96,7 +111,7 @@ public partial class NbtReader : IDisposable
     /// </summary>
     /// <returns>A signed byte array</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public sbyte[] ReadSByteArray()
+    private sbyte[] ReadSByteArray()
     {
         int length = _reader.ReadInt32();
         sbyte[] data = new sbyte[length];
@@ -109,7 +124,7 @@ public partial class NbtReader : IDisposable
     /// </summary>
     /// <returns>An int array</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual int[] ReadInt32Array()
+    private int[] ReadInt32Array()
     {
         int length = _reader.ReadInt32();
         int[] data = new int[length];
@@ -122,7 +137,7 @@ public partial class NbtReader : IDisposable
     /// </summary>
     /// <returns>A long array</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual long[] ReadInt64Array()
+    private long[] ReadInt64Array()
     {
         int length = _reader.ReadInt32();
         long[] data = new long[length];
@@ -207,6 +222,9 @@ public partial class NbtReader : IDisposable
         }
     }
 
+    /// <summary>
+    /// Disposes the <see cref="NbtReader"/> and the underlying <see cref="System.IO.Stream"/> (unless it is configured to be left open).
+    /// </summary>
     public void Dispose()
     {
         _reader.Dispose();
