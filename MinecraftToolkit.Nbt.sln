@@ -7,11 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftToolkit.Nbt", "Min
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftToolkit.Nbt.Benchmark", "Benchmarks\MinecraftToolkit.Nbt.Benchmark\MinecraftToolkit.Nbt.Benchmark.csproj", "{51DE987E-01D6-488D-9BDC-3F3B228792CE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{A7A35A9F-AFF3-46F9-88D7-5619FE225038}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{BDA7193A-60BD-409A-90D3-54FF057A06B4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{A9C1337B-12DF-49E9-AF70-C2533708CFA8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmark Libraries", "Benchmark Libraries", "{A9C1337B-12DF-49E9-AF70-C2533708CFA8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fNbt", "benchmarks\libs\fNbt\fNbt\fNbt.csproj", "{AEB65BF9-507C-48A9-B8BA-270081207BBC}"
 EndProject
@@ -26,8 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftToolkit.Nbt.Test", "tests\MinecraftToolkit.Nbt.Test\MinecraftToolkit.Nbt.Test.csproj", "{54ABC1D6-3555-4786-9A1D-E9334711ACFA}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0581EF20-0015-4FAF-967B-BA4BABFF59EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LevelFile", "samples\LevelFile\LevelFile.csproj", "{BAB154F2-48B5-47FF-ABA5-8B40750D2AFC}"
 EndProject
@@ -66,11 +62,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{51DE987E-01D6-488D-9BDC-3F3B228792CE} = {A7A35A9F-AFF3-46F9-88D7-5619FE225038}
-		{A9C1337B-12DF-49E9-AF70-C2533708CFA8} = {A7A35A9F-AFF3-46F9-88D7-5619FE225038}
 		{AEB65BF9-507C-48A9-B8BA-270081207BBC} = {A9C1337B-12DF-49E9-AF70-C2533708CFA8}
 		{30636225-033C-44BB-B1E7-F8EA0EAC1C40} = {A9C1337B-12DF-49E9-AF70-C2533708CFA8}
-		{54ABC1D6-3555-4786-9A1D-E9334711ACFA} = {0581EF20-0015-4FAF-967B-BA4BABFF59EE}
 		{BAB154F2-48B5-47FF-ABA5-8B40750D2AFC} = {BDA7193A-60BD-409A-90D3-54FF057A06B4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
