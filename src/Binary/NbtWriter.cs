@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt.Binary;
+namespace NbtToolkit.Binary;
 
 /// <summary>
 /// Writes binary NBT data to a stream.

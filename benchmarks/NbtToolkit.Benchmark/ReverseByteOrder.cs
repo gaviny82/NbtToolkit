@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt.Benchmark;
+namespace NbtToolkit.Benchmark;
 
 public class ReverseByteOrder
 {

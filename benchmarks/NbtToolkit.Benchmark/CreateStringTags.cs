@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace MinecraftToolkit.Nbt.Benchmark;
+namespace NbtToolkit.Benchmark;
 
 [MemoryDiagnoser(false)]
 public class CreateStringTags

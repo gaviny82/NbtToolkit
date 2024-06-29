@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt.Binary;
+namespace NbtToolkit.Binary;
 
 public enum NbtCompression
 {

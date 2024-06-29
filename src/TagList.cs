@@ -1,4 +1,4 @@
-﻿using MinecraftToolkit.Nbt.Binary;
+﻿using NbtToolkit.Binary;
 using System;
 using System.Collections;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt;
+namespace NbtToolkit;
 
 /// <summary>
 /// Base class of all NBT list tags.

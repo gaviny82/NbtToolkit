@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MinecraftToolkit.Nbt\MinecraftToolkit.Nbt.csproj" />
+    <ProjectReference Include="..\..\src\NbtToolkit.csproj" />
     <ProjectReference Include="..\libs\fNbt\fNbt\fNbt.csproj" />
     <ProjectReference Include="..\libs\Substrate\Substrate\Substrate.csproj" />
   </ItemGroup>

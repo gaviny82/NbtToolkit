@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MinecraftToolkit.Nbt.Binary;
+namespace NbtToolkit.Binary;
 
 internal sealed class NbtBinaryReader : BinaryReader
 {

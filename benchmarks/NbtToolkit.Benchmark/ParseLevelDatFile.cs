@@ -1,5 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using MinecraftToolkit.Nbt.Binary;
+using NbtToolkit.Binary;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt.Benchmark;
+namespace NbtToolkit.Benchmark;
 
 [MemoryDiagnoser(false)]
 public class ParseLevelDatFile

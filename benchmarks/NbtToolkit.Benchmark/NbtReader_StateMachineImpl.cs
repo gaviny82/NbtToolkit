@@ -8,10 +8,10 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using MinecraftToolkit.Nbt.Binary;
-using static MinecraftToolkit.Nbt.Binary.NbtReader;
+using NbtToolkit.Binary;
+using static NbtToolkit.Binary.NbtReader;
 
-namespace MinecraftToolkit.Nbt.Benchmark;
+namespace NbtToolkit.Benchmark;
 
 internal ref struct NbtReaderStateMachine
 {

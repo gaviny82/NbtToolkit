@@ -1,9 +1,9 @@
-﻿using MinecraftToolkit.Nbt.Binary;
+﻿using NbtToolkit.Binary;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace MinecraftToolkit.Nbt;
+namespace NbtToolkit;
 
 /// <summary>
 /// Base class of all NBT tags

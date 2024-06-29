@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MinecraftToolkit.Nbt\MinecraftToolkit.Nbt.csproj" />
+    <ProjectReference Include="..\..\NbtToolkit\NbtToolkit.csproj" />
   </ItemGroup>
 
   <!-- Copy sample files for testing to output directory -->

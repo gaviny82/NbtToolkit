@@ -4,7 +4,7 @@ using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MinecraftToolkit.Nbt.Binary;
+namespace NbtToolkit.Binary;
 
 internal sealed class NbtBinaryWriter : IDisposable
 {

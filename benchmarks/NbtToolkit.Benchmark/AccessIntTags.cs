@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt.Benchmark;
+namespace NbtToolkit.Benchmark;
 
 public class AccessIntTags
 {

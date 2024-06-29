@@ -1,4 +1,4 @@
-﻿using MinecraftToolkit.Nbt.Binary;
+﻿using NbtToolkit.Binary;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinecraftToolkit.Nbt.Binary;
+namespace NbtToolkit.Binary;
 
 public partial class NbtReader : IDisposable
 {
