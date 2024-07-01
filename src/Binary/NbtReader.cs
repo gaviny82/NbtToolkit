@@ -180,7 +180,7 @@ public partial class NbtReader : IDisposable
             case TagId.Float:
                 TagList<float> floats = new(0);
                 CollectionsMarshal.SetCount(floats._items, length);
-                _reader.ReadFloatSpan(CollectionsMarshal.AsSpan(floats._items));
+                _reader.ReadSingleSpan(CollectionsMarshal.AsSpan(floats._items));
                 return floats;
             case TagId.Double:
                 TagList<double> doubles = new(0);
