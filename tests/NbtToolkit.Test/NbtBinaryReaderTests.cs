@@ -238,18 +238,7 @@ public class NbtBinaryReaderTests
 
     [Fact]
     public void ReadString_Empty_ReturnsCorrectValue()
-    {
-        // Arrange
-        string expectedValue = "";
-        byte[] data = [0x00, 0x00]; // length (ushort): 0
-        using var reader = new NbtBinaryReader(new MemoryStream(data));
-
-        // Act
-        string actualValue = reader.ReadString();
-
-        // Assert
-        Assert.Equal(expectedValue, actualValue);
-    }
+        => ReadStringTest("");
 
     [Fact]
     public void ReadString_NotEnoughBytes_ThrowsEOSException()
