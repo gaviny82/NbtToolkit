@@ -293,6 +293,119 @@ public class NbtBinaryReaderTests
 
     #region Read a span of values
 
+    [Fact]
+    public void ReadInt8Span_Successful_ReturnsCorrectValue()
+    {
+        // Arrange
+        sbyte[] expectedValue = [0x01, 0x02, 0x03, 0x04, 0x05];
+        byte[] data = new byte[expectedValue.Length];
+        for (int i = 0; i < expectedValue.Length; i++)
+            data[i] = (byte)expectedValue[i];
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        Span<sbyte> actualValue = new sbyte[expectedValue.Length];
+
+        // Act
+        reader.ReadInt8Span(actualValue);
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
+    }
+
+    [Fact]
+    public void ReadInt16Span_Successful_ReturnsCorrectValue()
+    {
+        // Arrange
+        short[] expectedValue = [0x0102, 0x0304, 0x0506, 0x0708, 0x090A];
+        byte[] data = new byte[expectedValue.Length * sizeof(short)];
+        for (int i = 0; i < expectedValue.Length; i++)
+            BinaryPrimitives.WriteInt16BigEndian(data.AsSpan(i * sizeof(short)), expectedValue[i]);
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        Span<short> actualValue = new short[expectedValue.Length];
+
+        // Act
+        reader.ReadInt16Span(actualValue);
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
+    }
+
+    [Fact]
+    public void ReadInt32Span_Successful_ReturnsCorrectValue()
+    {
+        // Arrange
+        int[] expectedValue = [0x01020304, 0x05060708, 0x090A0B0C, 0x0D0E0F10, 0x11121314];
+        byte[] data = new byte[expectedValue.Length * sizeof(int)];
+        for (int i = 0; i < expectedValue.Length; i++)
+            BinaryPrimitives.WriteInt32BigEndian(data.AsSpan(i * sizeof(int)), expectedValue[i]);
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        Span<int> actualValue = new int[expectedValue.Length];
+
+        // Act
+        reader.ReadInt32Span(actualValue);
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
+    }
+
+    [Fact]
+    public void ReadInt64Span_Successful_ReturnsCorrectValue()
+    {
+        // Arrange
+        long[] expectedValue = [0x0102030405060708, 0x090A0B0C0D0E0F10, 0x1112131415161718, 0x191A1B1C1D1E1F20, 0x2122232425262728];
+        byte[] data = new byte[expectedValue.Length * sizeof(long)];
+        for (int i = 0; i < expectedValue.Length; i++)
+            BinaryPrimitives.WriteInt64BigEndian(data.AsSpan(i * sizeof(long)), expectedValue[i]);
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        Span<long> actualValue = new long[expectedValue.Length];
+
+        // Act
+        reader.ReadInt64Span(actualValue);
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
+    }
+
+    [Fact]
+    public void ReadSingleSpan_Successful_ReturnsCorrectValue()
+    {
+        // Arrange
+        float[] expectedValue = [3.14f, 2.718f, 1.618f, 0.577f, 0.123f];
+        byte[] data = new byte[expectedValue.Length * sizeof(float)];
+        for (int i = 0; i < expectedValue.Length; i++)
+            BinaryPrimitives.WriteSingleBigEndian(data.AsSpan(i * sizeof(float)), expectedValue[i]);
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        Span<float> actualValue = new float[expectedValue.Length];
+
+        // Act
+        reader.ReadSingleSpan(actualValue);
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
+    }
+
+    [Fact]
+    public void ReadDoubleSpan_Successful_ReturnsCorrectValue()
+    {
+        // Arrange
+        double[] expectedValue = [3.14, 2.718, 1.618, 0.577, 0.123];
+        byte[] data = new byte[expectedValue.Length * sizeof(double)];
+        for (int i = 0; i < expectedValue.Length; i++)
+            BinaryPrimitives.WriteDoubleBigEndian(data.AsSpan(i * sizeof(double)), expectedValue[i]);
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        Span<double> actualValue = new double[expectedValue.Length];
+
+        // Act
+        reader.ReadDoubleSpan(actualValue);
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
+    }
 
     #endregion
 }
