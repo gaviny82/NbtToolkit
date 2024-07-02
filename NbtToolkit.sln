@@ -26,6 +26,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NbtToolkit", "src\NbtToolki
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NbtToolkit.Test", "tests\NbtToolkit.Test\NbtToolkit.Test.csproj", "{71F6E884-3FED-4F3C-8DE2-7A305648EAA7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Actions", "GitHub Actions", "{1E84B162-15B8-4552-8D13-F5659BEAD2EE}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\doc.yml = .github\workflows\doc.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
