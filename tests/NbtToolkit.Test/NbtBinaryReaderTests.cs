@@ -9,7 +9,7 @@ public class NbtBinaryReaderTests
     #region Read a single value
 
     [Fact]
-    public void ReadByte_Successful_ReturnsCorrectValue()
+    public void ReadByte_Default_ReturnsCorrectValue()
     {
         // Arrange
         byte expectedValue = 0x1A;
@@ -34,7 +34,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadSByte_Successful_ReturnsCorrectValue()
+    public void ReadSByte_Default_ReturnsCorrectValue()
     {
         // Arrange
         sbyte expectedValue = -10;
@@ -59,7 +59,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadUInt16_Successful_ReturnsCorrectValue()
+    public void ReadUInt16_Default_ReturnsCorrectValue()
     {
         // Arrange
         ushort expectedValue = 12345;
@@ -86,7 +86,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadInt16_Successful_ReturnsCorrectValue()
+    public void ReadInt16_Default_ReturnsCorrectValue()
     {
         // Arrange
         short expectedValue = -12345;
@@ -113,7 +113,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadInt32_Successful_ReturnsCorrectValue()
+    public void ReadInt32_Default_ReturnsCorrectValue()
     {
         // Arrange
         int expectedValue = -123456789;
@@ -140,7 +140,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadInt64_Successful_ReturnsCorrectValue()
+    public void ReadInt64_Default_ReturnsCorrectValue()
     {
         // Arrange
         long expectedValue = -123456789123456;
@@ -167,7 +167,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadSingle_Successful_ReturnsCorrectValue()
+    public void ReadSingle_Default_ReturnsCorrectValue()
     {
         // Arrange
         float expectedValue = 3.14f;
@@ -194,7 +194,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadDouble_Successful_ReturnsCorrectValue()
+    public void ReadDouble_Default_ReturnsCorrectValue()
     {
         // Arrange
         double expectedValue = 3.1415926;
@@ -225,19 +225,19 @@ public class NbtBinaryReaderTests
     #region ReadString()
 
     [Fact]
-    public void ReadString_ShortString_ReturnsCorrectValue()
+    public void ReadString_Short_ReturnsCorrectValue()
         => ReadStringTest("Hello, world!");
 
     [Fact]
-    public void ReadString_ShortString_NonAscii_ReturnsCorrectValue()
+    public void ReadString_ShortNonAscii_ReturnsCorrectValue()
         => ReadStringTest("你好，世界！");
 
     [Fact]
-    public void ReadString_LongString_ReturnsCorrectValue()
+    public void ReadString_Long_ReturnsCorrectValue()
         => ReadStringTest(new string('a', 1024));
 
     [Fact]
-    public void ReadString_EmptyString_ReturnsCorrectValue()
+    public void ReadString_Empty_ReturnsCorrectValue()
     {
         // Arrange
         string expectedValue = "";
@@ -294,7 +294,7 @@ public class NbtBinaryReaderTests
     #region Read a span of values
 
     [Fact]
-    public void ReadInt8Span_Successful_ReturnsCorrectValue()
+    public void ReadInt8Span_Default_ReturnsCorrectValue()
     {
         // Arrange
         sbyte[] expectedValue = [0x01, 0x02, 0x03, 0x04, 0x05];
@@ -313,7 +313,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadInt16Span_Successful_ReturnsCorrectValue()
+    public void ReadInt16Span_Default_ReturnsCorrectValue()
     {
         // Arrange
         short[] expectedValue = [0x0102, 0x0304, 0x0506, 0x0708, 0x090A];
@@ -332,7 +332,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadInt32Span_Successful_ReturnsCorrectValue()
+    public void ReadInt32Span_Default_ReturnsCorrectValue()
     {
         // Arrange
         int[] expectedValue = [0x01020304, 0x05060708, 0x090A0B0C, 0x0D0E0F10, 0x11121314];
@@ -351,7 +351,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadInt64Span_Successful_ReturnsCorrectValue()
+    public void ReadInt64Span_Default_ReturnsCorrectValue()
     {
         // Arrange
         long[] expectedValue = [0x0102030405060708, 0x090A0B0C0D0E0F10, 0x1112131415161718, 0x191A1B1C1D1E1F20, 0x2122232425262728];
@@ -370,7 +370,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadSingleSpan_Successful_ReturnsCorrectValue()
+    public void ReadSingleSpan_Default_ReturnsCorrectValue()
     {
         // Arrange
         float[] expectedValue = [3.14f, 2.718f, 1.618f, 0.577f, 0.123f];
@@ -389,7 +389,7 @@ public class NbtBinaryReaderTests
     }
 
     [Fact]
-    public void ReadDoubleSpan_Successful_ReturnsCorrectValue()
+    public void ReadDoubleSpan_Default_ReturnsCorrectValue()
     {
         // Arrange
         double[] expectedValue = [3.14, 2.718, 1.618, 0.577, 0.123];
