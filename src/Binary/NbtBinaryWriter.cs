@@ -85,14 +85,14 @@ internal sealed class NbtBinaryWriter : IDisposable
         }
         else // Fall back: use 2-pass calculation for large number of characters
         {
-            int actualBytecount = encoding.GetByteCount(str);
-            if (actualBytecount > MaxNbtStringByteCount)
+            int actualByteCount = encoding.GetByteCount(str);
+            if (actualByteCount > MaxNbtStringByteCount)
                 throw new ArgumentException("String is too long", nameof(str));
-            Write((ushort)actualBytecount);
+            Write((ushort)actualByteCount);
 
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(actualBytecount);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(actualByteCount);
             encoding.GetBytes(str, buffer);
-            _stream.Write(buffer);
+            _stream.Write(buffer.AsSpan(0, actualByteCount));
             ArrayPool<byte>.Shared.Return(buffer);
         }
     }
@@ -171,7 +171,7 @@ internal sealed class NbtBinaryWriter : IDisposable
                 byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
                 Span<short> bufferAsShort = MemoryMarshal.Cast<byte, short>(buffer);
                 BinaryPrimitives.ReverseEndianness(values, bufferAsShort);
-                _stream.Write(buffer);
+                _stream.Write(buffer.AsSpan(0, byteCount));
                 ArrayPool<byte>.Shared.Return(buffer);
             }
             else
@@ -186,7 +186,7 @@ internal sealed class NbtBinaryWriter : IDisposable
                     values = values[bufferAsShort.Length..];
                 }
 
-                // Reaminder
+                // Remainder
                 BinaryPrimitives.ReverseEndianness(values, bufferAsShort);
                 _stream.Write(buffer, 0, values.Length * sizeof(short));
 
@@ -218,7 +218,7 @@ internal sealed class NbtBinaryWriter : IDisposable
                 byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
                 Span<int> bufferAsInt = MemoryMarshal.Cast<byte, int>(buffer);
                 BinaryPrimitives.ReverseEndianness(values, bufferAsInt);
-                _stream.Write(buffer);
+                _stream.Write(buffer.AsSpan(0, byteCount));
                 ArrayPool<byte>.Shared.Return(buffer);
             }
             else
@@ -233,7 +233,7 @@ internal sealed class NbtBinaryWriter : IDisposable
                     values = values[bufferAsInt.Length..];
                 }
 
-                // Reaminder
+                // Remainder
                 BinaryPrimitives.ReverseEndianness(values, bufferAsInt);
                 _stream.Write(buffer, 0, values.Length * sizeof(int));
 
@@ -265,7 +265,7 @@ internal sealed class NbtBinaryWriter : IDisposable
                 byte[] buffer = ArrayPool<byte>.Shared.Rent(byteCount);
                 Span<long> bufferAsLong = MemoryMarshal.Cast<byte, long>(buffer);
                 BinaryPrimitives.ReverseEndianness(values, bufferAsLong);
-                _stream.Write(buffer);
+                _stream.Write(buffer.AsSpan(0, byteCount));
                 ArrayPool<byte>.Shared.Return(buffer);
             }
             else
@@ -280,7 +280,7 @@ internal sealed class NbtBinaryWriter : IDisposable
                     values = values[bufferAsLong.Length..];
                 }
 
-                // Reaminder
+                // Remainder
                 BinaryPrimitives.ReverseEndianness(values, bufferAsLong);
                 _stream.Write(buffer, 0, values.Length * sizeof(long));
 
