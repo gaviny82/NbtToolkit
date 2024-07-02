@@ -1,5 +1,6 @@
 ﻿using NbtToolkit.Binary;
 using System.Buffers.Binary;
+using System.Text;
 
 namespace NbtToolkit.Test;
 
@@ -217,6 +218,75 @@ public class NbtBinaryReaderTests
 
         // Act & Assert
         Assert.Throws<EndOfStreamException>(() => reader.ReadDouble());
+    }
+
+    #endregion
+
+    #region ReadString()
+
+    [Fact]
+    public void ReadString_ShortString_ReturnsCorrectValue()
+        => ReadStringTest("Hello, world!");
+
+    [Fact]
+    public void ReadString_ShortString_NonAscii_ReturnsCorrectValue()
+        => ReadStringTest("你好，世界！");
+
+    [Fact]
+    public void ReadString_LongString_ReturnsCorrectValue()
+        => ReadStringTest(new string('a', 1024));
+
+    [Fact]
+    public void ReadString_EmptyString_ReturnsCorrectValue()
+    {
+        // Arrange
+        string expectedValue = "";
+        byte[] data = [0x00, 0x00]; // length (ushort): 0
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        // Act
+        string actualValue = reader.ReadString();
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
+    }
+
+    [Fact]
+    public void ReadString_NotEnoughBytes_ThrowsEOSException()
+    {
+        // Arrange
+        byte[] strBytes = Encoding.UTF8.GetBytes("Hello, world!");
+
+        ushort length = (ushort)strBytes.Length;
+        byte[] data = new byte[sizeof(ushort) + length];
+        BinaryPrimitives.WriteUInt16BigEndian(data, length);
+        strBytes.CopyTo(data.AsSpan(sizeof(ushort)));
+
+        data = data[0..^1]; // 1 less byte
+
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        // Act & Assert
+        Assert.Throws<EndOfStreamException>(() => reader.ReadString());
+    }
+
+    private static void ReadStringTest(string expectedValue)
+    {
+        // Arrange
+        byte[] strBytes = Encoding.UTF8.GetBytes(expectedValue);
+
+        ushort length = (ushort)strBytes.Length;
+        byte[] data = new byte[sizeof(ushort) + length];
+        BinaryPrimitives.WriteUInt16BigEndian(data, length);
+        strBytes.CopyTo(data.AsSpan(sizeof(ushort)));
+
+        using var reader = new NbtBinaryReader(new MemoryStream(data));
+
+        // Act
+        string actualValue = reader.ReadString();
+
+        // Assert
+        Assert.Equal(expectedValue, actualValue);
     }
 
     #endregion
