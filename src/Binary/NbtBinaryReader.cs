@@ -160,7 +160,7 @@ internal sealed class NbtBinaryReader : BinaryReader
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ReadFloatSpan(Span<float> span)
+    public void ReadSingleSpan(Span<float> span)
     {
         _stream.ReadExactly(MemoryMarshal.AsBytes(span));
         if (BitConverter.IsLittleEndian)

@@ -6,3 +6,4 @@ using System.Text;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("NbtToolkit.Benchmark")]
+[assembly: InternalsVisibleTo("NbtToolkit.Test")]
