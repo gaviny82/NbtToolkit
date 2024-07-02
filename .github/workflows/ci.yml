@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  # Reuse the build job from build.yml
+  build:
+    # Ignore draft PRs
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
+    runs-on: ubuntu-latest    
+    strategy:
+      matrix:
+        architecture: [x64, arm64]
+    name: ${{ matrix.architecture }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build
+      run: |
+        dotnet build ./src --configuration Release
+        dotnet build ./tests/NbtToolkit.Test --configuration Release
+    
+    - name: Test
+      run: dotnet test ./tests/NbtToolkit.Test --verbosity normal
