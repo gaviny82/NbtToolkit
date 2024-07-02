@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace NbtToolkit.Benchmark;
 
 [MemoryDiagnoser(false)]
-public class ParseLevelDatFile
+public class ReadLevelDatFile
 {
     private const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
     private MemoryStream _stream = null!;
@@ -50,28 +50,28 @@ public class ParseLevelDatFile
     }
 
     [Benchmark(Baseline = true)]
-    public void Parse()
+    public void Read()
     {
         _stream.Position = 0;
         _nbtReader.ReadRootTag();
     }
 
     [Benchmark]
-    public void Parse_StateMachine()
+    public void Read_StateMachine()
     {
         _stream.Position = 0;
         _nbtReader_StateMachine.ReadRootTag();
     }
 
     [Benchmark]
-    public void Parse_fNbt()
+    public void Read_fNbt()
     {
         _stream.Position = 0;
         _nbtFilefNbt.LoadFromStream(_stream, fNbt.NbtCompression.None);
     }
 
     [Benchmark]
-    public void Parse_Substrate()
+    public void Read_Substrate()
     {
         _stream.Position = 0;
         _nbtTreeSubstrate.ReadFrom(_stream);
