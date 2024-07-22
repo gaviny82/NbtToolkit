@@ -122,6 +122,7 @@ public class TagCompound : Tag, IDictionary<string, Tag>
         {
             tag.WriteBinary(writer, name);
         }
+        writer.Write((byte)TagId.End);
     }
 
     #endregion

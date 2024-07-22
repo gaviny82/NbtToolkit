@@ -36,6 +36,8 @@ public abstract class TagList : Tag
         TagType.LongArray => TagId.LongArray,
         _ => throw new InvalidOperationException($"Invalid TagType value: {ItemType}")
     };
+
+    internal abstract void WriteBinaryPayload(NbtBinaryWriter writer);
 }
 
 /// <summary>
@@ -142,10 +144,11 @@ public sealed class TagList<T> : TagList, IList<T> where T : notnull
     {
         writer.Write((byte)TagId.List);
         writer.WriteString(tagName);
+        WriteBinaryPayload(writer);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void WriteBinaryPayload(NbtBinaryWriter writer)
+    internal override void WriteBinaryPayload(NbtBinaryWriter writer)
     {
         if (this is TagList<sbyte> byteList)
         {
@@ -201,7 +204,7 @@ public sealed class TagList<T> : TagList, IList<T> where T : notnull
                 item.WriteBinaryPayload(writer);
             }
         }
-        else if (this is TagList<TagList<T>> listOfLists)
+        else if (this is TagList<TagList> listOfLists)
         {
             writer.Write((byte)TagId.List);
             writer.Write(listOfLists._items.Count);
@@ -251,4 +254,9 @@ public sealed class TagList<T> : TagList, IList<T> where T : notnull
 
     public static bool operator !=(TagList<T> left, TagList<T> right)
         => !(left == right);
+
+    public override bool Equals(object? obj)
+        => obj is TagList<T> list && this == list;
+
+    public override int GetHashCode() => base.GetHashCode();
 }

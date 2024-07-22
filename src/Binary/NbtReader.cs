@@ -55,7 +55,7 @@ public partial class NbtReader : IDisposable
         return ReadTagCompound();
     }
 
-    private TagCompound ReadTagCompound()
+    internal TagCompound ReadTagCompound()
     {
         var tagCompound = new TagCompound();
         do
@@ -188,9 +188,9 @@ public partial class NbtReader : IDisposable
                 _reader.ReadDoubleSpan(CollectionsMarshal.AsSpan(doubles._items));
                 return doubles;
             case TagId.ByteArray:
-                TagList<TagByteArray> byteArrays = new(length);
+                TagList<sbyte[]> byteArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    byteArrays.Add(new TagByteArray(ReadSByteArray()));
+                    byteArrays.Add(ReadSByteArray());
                 return byteArrays;
             case TagId.String:
                 TagList<string> strings = new(length);
@@ -208,14 +208,14 @@ public partial class NbtReader : IDisposable
                     compounds.Add(ReadTagCompound());
                 return compounds;
             case TagId.IntArray:
-                TagList<TagIntArray> intArrays = new(length);
+                TagList<int[]> intArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    intArrays.Add(new TagIntArray(ReadInt32Array()));
+                    intArrays.Add(ReadInt32Array());
                 return intArrays;
             case TagId.LongArray:
-                TagList<TagLongArray> longArrays = new(length);
+                TagList<long[]> longArrays = new(length);
                 for (int i = 0; i < length; i++)
-                    longArrays.Add(new TagLongArray(ReadInt64Array()));
+                    longArrays.Add(ReadInt64Array());
                 return longArrays;
             default:
                 throw new InvalidDataException($"Invalid tag ID {tagId}");
