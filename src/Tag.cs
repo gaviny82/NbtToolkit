@@ -122,6 +122,15 @@ public abstract class Tag
 
     #endregion
 
+    public static bool operator ==(Tag left, Tag right)
+        => left.Equals(right);
+
+    public static bool operator !=(Tag left, Tag right)
+        => !left.Equals(right);
+
+    public override bool Equals(object? obj) => base.Equals(obj);
+    public override int GetHashCode() => base.GetHashCode();
+
     // Virtual function is used because many type checks are needed to determine which function to call
     // when writing a tag to a stream. Virtual function call has a consistent overhead independent of
     // the number of child types. // TODO: benchmark needed
@@ -145,6 +154,17 @@ public class TagByte : Tag
         Value = value;
     }
 
+    public static bool operator ==(TagByte left, TagByte right)
+        => left.Value == right.Value;
+
+    public static bool operator !=(TagByte left, TagByte right)
+        => left.Value != right.Value;
+
+    public override bool Equals(object? obj)
+        => obj is TagByte tag && tag.Value == Value;
+
+    public override int GetHashCode() => base.GetHashCode();
+
     public static implicit operator TagByte(sbyte value) => new TagByte(value);
 
     internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
@@ -165,6 +185,17 @@ public class TagShort : Tag
     {
         Value = value;
     }
+
+    public static bool operator ==(TagShort left, TagShort right)
+        => left.Value == right.Value;
+
+    public static bool operator !=(TagShort left, TagShort right)
+        => left.Value != right.Value;
+
+    public override bool Equals(object? obj)
+        => obj is TagShort tag && tag.Value == Value;
+
+    public override int GetHashCode() => base.GetHashCode();
 
     public static implicit operator TagShort(short value) => new TagShort(value);
 
@@ -188,6 +219,17 @@ public class TagInt : Tag
         Value = value;
     }
 
+    public static bool operator ==(TagInt left, TagInt right)
+        => left.Value == right.Value;
+
+    public static bool operator !=(TagInt left, TagInt right)
+        => left.Value != right.Value;
+
+    public override bool Equals(object? obj)
+        => obj is TagInt tag && tag.Value == Value;
+
+    public override int GetHashCode() => base.GetHashCode();
+
     public static implicit operator TagInt(int value) => new TagInt(value);
 
     internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
@@ -208,6 +250,17 @@ public class TagLong : Tag
     {
         Value = value;
     }
+
+    public static bool operator ==(TagLong left, TagLong right)
+        => left.Value == right.Value;
+
+    public static bool operator !=(TagLong left, TagLong right)
+        => left.Value != right.Value;
+
+    public override bool Equals(object? obj)
+        => obj is TagLong tag && tag.Value == Value;
+
+    public override int GetHashCode() => base.GetHashCode();
 
     public static implicit operator TagLong(long value) => new TagLong(value);
 
@@ -230,6 +283,17 @@ public class TagFloat : Tag
         Value = value;
     }
 
+    public static bool operator ==(TagFloat left, TagFloat right)
+        => left.Value == right.Value;
+
+    public static bool operator !=(TagFloat left, TagFloat right)
+        => left.Value != right.Value;
+
+    public override bool Equals(object? obj)
+        => obj is TagFloat tag && tag.Value == Value;
+
+    public override int GetHashCode() => base.GetHashCode();
+
     public static implicit operator TagFloat(float value) => new TagFloat(value);
 
     internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
@@ -250,6 +314,17 @@ public class TagDouble : Tag
     {
         Value = value;
     }
+
+    public static bool operator ==(TagDouble left, TagDouble right)
+        => left.Value == right.Value;
+
+    public static bool operator !=(TagDouble left, TagDouble right)
+        => left.Value != right.Value;
+
+    public override bool Equals(object? obj)
+        => obj is TagDouble tag && tag.Value == Value;
+
+    public override int GetHashCode() => base.GetHashCode();
 
     public static implicit operator TagDouble(double value) => new TagDouble(value);
 
@@ -272,6 +347,17 @@ public class TagString : Tag
         Value = value;
     }
 
+    public static bool operator ==(TagString left, TagString right)
+        => left.Value == right.Value;
+
+    public static bool operator !=(TagString left, TagString right)
+        => left.Value != right.Value;
+
+    public override bool Equals(object? obj)
+        => obj is TagString tag && tag.Value == Value;
+
+    public override int GetHashCode() => base.GetHashCode();
+
     public static implicit operator TagString(string value) => new TagString(value);
 
     internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
@@ -292,6 +378,17 @@ public class TagByteArray : Tag
     {
         Value = value;
     }
+
+    public static bool operator ==(TagByteArray left, TagByteArray right)
+        => Enumerable.SequenceEqual(left.Value, right.Value);
+
+    public static bool operator !=(TagByteArray left, TagByteArray right)
+        => !(left == right);
+
+    public override bool Equals(object? obj)
+        => obj is TagByteArray tag && tag == this;
+
+    public override int GetHashCode() => base.GetHashCode();
 
     public static implicit operator TagByteArray(sbyte[] value) => new TagByteArray(value);
 
@@ -315,6 +412,17 @@ public class TagIntArray : Tag
         Value = value;
     }
 
+    public static bool operator ==(TagIntArray left, TagIntArray right)
+        => Enumerable.SequenceEqual(left.Value, right.Value);
+
+    public static bool operator !=(TagIntArray left, TagIntArray right)
+        => !(left == right);
+
+    public override bool Equals(object? obj)
+        => obj is TagIntArray tag && tag == this;
+
+    public override int GetHashCode() => base.GetHashCode();
+
     public static implicit operator TagIntArray(int[] value) => new TagIntArray(value);
 
     internal sealed override void WriteBinary(NbtBinaryWriter writer, string tagName)
@@ -336,6 +444,17 @@ public class TagLongArray : Tag
     {
         Value = value;
     }
+
+    public static bool operator ==(TagLongArray left, TagLongArray right)
+        => Enumerable.SequenceEqual(left.Value, right.Value);
+
+    public static bool operator !=(TagLongArray left, TagLongArray right)
+        => !(left == right);
+
+    public override bool Equals(object? obj)
+        => obj is TagLongArray tag && tag == this;
+
+    public override int GetHashCode() => base.GetHashCode();
 
     public static implicit operator TagLongArray(long[] value) => new TagLongArray(value);
 

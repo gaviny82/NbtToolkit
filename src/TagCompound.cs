@@ -25,6 +25,37 @@ public class TagCompound : Tag, IDictionary<string, Tag>
 
     }
 
+    public static bool operator ==(TagCompound left, TagCompound right)
+    {
+        if (object.ReferenceEquals(left._data, right._data))
+            return true;
+
+        if (left._data.Count != right._data.Count)
+            return false;
+
+        foreach ((string key, Tag value) in left._data)
+        {
+            if (right._data.TryGetValue(key, out Tag? otherValue))
+            {
+                if (value != otherValue)
+                    return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static bool operator !=(TagCompound left, TagCompound right)
+        => !(left == right);
+
+    public override bool Equals(object? obj)
+        => obj is TagCompound tag && tag == this;
+
+    public override int GetHashCode() => base.GetHashCode();
+
     #region IDictionary<string, Tag> implementation
 
     public Tag this[string key] { get => ((IDictionary<string, Tag>)_data)[key]; set => ((IDictionary<string, Tag>)_data)[key] = value; }

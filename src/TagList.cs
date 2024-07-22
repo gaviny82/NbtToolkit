@@ -245,4 +245,10 @@ public sealed class TagList<T> : TagList, IList<T> where T : notnull
             throw new InvalidOperationException("Invalid element type of TagList");
         }
     }
+
+    public static bool operator ==(TagList<T> left, TagList<T> right)
+        => Enumerable.SequenceEqual(left._items, right._items);
+
+    public static bool operator !=(TagList<T> left, TagList<T> right)
+        => !(left == right);
 }
