@@ -193,4 +193,21 @@ public class NbtWriterTests
         // Assert
         Assert.Equal(bytes, stream.ToArray());
     }
+
+    [Fact]
+    public void WriteTagCompound_Simple_WriteCorrectBytes()
+    {
+        // Arrange
+        byte[] bytes = NbtBinaryTestCases.TagCompound_Simple_Bytes;
+        TagCompound value = NbtBinaryTestCases.TagCompound_Simple_Value;
+
+        using MemoryStream stream = new();
+        using NbtBinaryWriter writer = new(stream);
+
+        // Act
+        value.WriteBinaryPayload(writer);
+
+        // Assert
+        Assert.Equal(bytes, stream.ToArray());
+    }
 }

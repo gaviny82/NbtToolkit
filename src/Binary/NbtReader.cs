@@ -55,7 +55,7 @@ public partial class NbtReader : IDisposable
         return ReadTagCompound();
     }
 
-    private TagCompound ReadTagCompound()
+    internal TagCompound ReadTagCompound()
     {
         var tagCompound = new TagCompound();
         do

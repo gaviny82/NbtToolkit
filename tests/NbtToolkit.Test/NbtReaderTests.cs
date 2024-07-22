@@ -201,6 +201,23 @@ public class NbtReaderTests
         Assert.Equal(values, result);
     }
 
+    [Fact]
+    public void ReadTagCompound_Simple_ReadCorrectValues()
+    {
+        // Arrange
+        byte[] bytes = NbtBinaryTestCases.TagCompound_Simple_Bytes;
+        TagCompound value = NbtBinaryTestCases.TagCompound_Simple_Value;
+
+        using MemoryStream stream = new(bytes);
+        using NbtReader reader = new(stream);
+
+        // Act
+        TagCompound result = reader.ReadTagCompound();
+
+        // Assert
+        Assert.Equal(value, result);
+    }
+
     // TODO: List of lists, list of compounds
 
     // TODO: Corner cases and errors

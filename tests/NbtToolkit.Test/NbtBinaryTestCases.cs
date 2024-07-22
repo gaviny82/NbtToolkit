@@ -170,4 +170,25 @@ internal static class NbtBinaryTestCases
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     ];
+
+    public static readonly byte[] TagCompound_Simple_Bytes = [
+        // Item 1
+        0x03, // Tag ID: TAG_Int
+        0x00, 0x04, // Key length: 4
+        0x6B, 0x65, 0x79, 0x31, // UTF8 key: "key1"
+        0x00, 0x00, 0x00, 0x01, // TAG_Int payload: 1
+        // Item 2
+        0x03, // Tag ID: TAG_Int
+        0x00, 0x04, // Key length: 4
+        0xE9, 0x94, 0xAE, 0x32, // UTF8 key: "键2"
+        0x00, 0x00, 0x00, 0x02, // TAG_Int payload: 2
+        // TAG_End
+        0x00
+    ];
+
+    public static readonly TagCompound TagCompound_Simple_Value = new()
+    {
+        ["key1"] = new TagInt(1),
+        ["键2"] = new TagInt(2),
+    };
 }
