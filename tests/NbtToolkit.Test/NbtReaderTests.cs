@@ -218,7 +218,22 @@ public class NbtReaderTests
         Assert.Equal(value, result);
     }
 
-    // TODO: List of lists, list of compounds
+    [Fact]
+    public void ReadTagList_NestedList_ReadCorrectValues()
+    {
+        // Arrange
+        byte[] bytes = NbtBinaryTestCases.TagList_IntList_Bytes;
+        TagList<TagList> value = NbtBinaryTestCases.TagList_IntList_Value;
+
+        using MemoryStream stream = new(bytes);
+        using NbtReader reader = new(stream);
+
+        // Act
+        TagList<TagList> result = (TagList<TagList>)reader.ReadTagList();
+
+        // Assert
+        Assert.Equal(value, result);
+    }
 
     // TODO: Corner cases and errors
     // e.g. negative list length, invalid tag ID, insufficient items, etc.

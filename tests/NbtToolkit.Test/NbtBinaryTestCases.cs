@@ -191,4 +191,27 @@ internal static class NbtBinaryTestCases
         ["key1"] = new TagInt(1),
         ["键2"] = new TagInt(2),
     };
+
+    public static readonly byte[] TagList_IntList_Bytes = [
+        0x09, // List content ID: TAG_List
+        0x00, 0x00, 0x00, 0x02, // Length: 2
+        // Child list 1
+        0x03, // List content ID: TAG_Int
+        0x00, 0x00, 0x00, 0x03, // Length: 3
+        0x00, 0x00, 0x00, 0x01, // Item 1: 1
+        0x00, 0x00, 0x00, 0x02, // Item 2: 2
+        0x00, 0x00, 0x00, 0x03, // Item 3: 3
+        // Child list 2
+        0x03, // List content ID: TAG_Int
+        0x00, 0x00, 0x00, 0x03, // Length: 3
+        0x00, 0x00, 0x00, 0x04, // Item 1: 1
+        0x00, 0x00, 0x00, 0x05, // Item 2: 2
+        0x00, 0x00, 0x00, 0x06, // Item 3: 3
+    ];
+
+    public static readonly TagList<TagList> TagList_IntList_Value = new()
+    {
+        new TagList<int> { 1, 2, 3 },
+        new TagList<int> { 4, 5, 6 },
+    };
 }

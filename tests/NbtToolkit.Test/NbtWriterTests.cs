@@ -210,4 +210,21 @@ public class NbtWriterTests
         // Assert
         Assert.Equal(bytes, stream.ToArray());
     }
+
+    [Fact]
+    public void WriteTagList_NestedList_WriteCorrectBytes()
+    {
+        // Arrange
+        byte[] bytes = NbtBinaryTestCases.TagList_IntList_Bytes;
+        TagList<TagList> value = NbtBinaryTestCases.TagList_IntList_Value;
+
+        using MemoryStream stream = new();
+        using NbtBinaryWriter writer = new(stream);
+
+        // Act
+        value.WriteBinaryPayload(writer);
+
+        // Assert
+        Assert.Equal(bytes, stream.ToArray());
+    }
 }
