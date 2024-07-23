@@ -8,11 +8,6 @@ on:
         required: true
         default: false
         type: boolean
-      is_prerelease:
-        description: Prerelease
-        required: true
-        default: false
-        type: boolean
 
 permissions:
   contents: write
@@ -28,15 +23,27 @@ jobs:
     - name: Checkout to the version tag provided
       id: checkout_tag
       run: |
+        # Ensure that the workflow is running on a version tag
         if [[ "${{ github.ref }}" != refs/tags/* ]]; then
           echo "ERROR: This workflow requires a tag to be set."
           exit 1
         fi
 
         VERSION=${{ github.ref }}
+        VERSION=${VERSION#refs/tags/}
         git fetch --tags
         git checkout $VERSION
-        echo "::set-output name=VERSION::$VERSION"
+
+        # Determine if the version is a prerelease
+        if [[ "$VERSION" == *-* ]]; then
+            IS_PRERELEASE=true
+        else
+            IS_PRERELEASE=false
+        fi
+
+        # Set outputs
+        echo "::set-output name=Version::$VERSION"
+        echo "::set-output name=IsPrerelease::$IS_PRERELEASE"
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -46,10 +53,10 @@ jobs:
     - name: Build
       run: |
         dotnet build ./src --configuration Release
-        dotnet build ./tests/NbtToolkit.Test --configuration Release
+        dotnet build ./tests/NbtToolkit.Test
     
     - name: Test
-      run: dotnet test ./tests/NbtToolkit.Test --verbosity normal
+      run: dotnet test ./tests/NbtToolkit.Test --verbosity normal --no-build
 
     - name: Pack
       run: dotnet pack ./src/NbtToolkit.csproj --configuration Release --no-build --output ./artifacts
@@ -65,12 +72,12 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: ./artifacts/*
-        name: ${{ steps.checkout_tag.outputs.VERSION }}
-        tag_name: ${{ steps.checkout_tag.outputs.VERSION }}
+        name: ${{ steps.checkout_tag.outputs.Version }}
+        tag_name: ${{ steps.checkout_tag.outputs.Version }}
         generate_release_notes: true
         draft: true
-        prerelease: ${{ github.event.inputs.is_prerelease }}
+        prerelease: ${{ steps.checkout_tag.outputs.IsPrerelease }}
     
     - name: Push to NuGet
-      if: ${{ github.event.inputs.publish_to_nuget == true }}
+      if: ${{ github.event.inputs.publish_to_nuget }}
       run: dotnet nuget push ./artifacts/* -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate

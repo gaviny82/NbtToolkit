@@ -28,7 +28,7 @@ jobs:
     - name: Build
       run: |
         dotnet build ./src --configuration Release
-        dotnet build ./tests/NbtToolkit.Test --configuration Release
+        dotnet build ./tests/NbtToolkit.Test
     
     - name: Test
-      run: dotnet test ./tests/NbtToolkit.Test --verbosity normal
+      run: dotnet test ./tests/NbtToolkit.Test --verbosity normal --no-build
