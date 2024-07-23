@@ -1,4 +1,4 @@
-# Trigger the action on push to main
+name: Update Docs
 on: workflow_dispatch
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages

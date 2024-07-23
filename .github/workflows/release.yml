@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_to_nuget:
+        description: Publish to nuget.org
+        required: true
+        default: false
+        type: boolean
+      is_prerelease:
+        description: Prerelease
+        required: true
+        default: false
+        type: boolean
+      version:
+        description: "Version tag:"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Checkout to the version tag provided
+      run: |
+        VERSION=${{ github.event.inputs.version }}
+        git fetch --tags
+        git checkout $VERSION
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build
+      run: |
+        dotnet build ./src --configuration Release
+        dotnet build ./tests/NbtToolkit.Test --configuration Release
+    
+    - name: Test
+      run: dotnet test ./tests/NbtToolkit.Test --verbosity normal
+
+    - name: Pack
+      run: dotnet pack ./src/NbtToolkit.csproj --configuration Release --no-build --output ./artifacts
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: .nupkg and .snupkg
+        path: ./artifacts
+        
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./artifacts/*
+        name: ${{ github.event.inputs.version }}
+        tag_name: ${{ github.event.inputs.version }}
+        generate_release_notes: true
+        draft: true
+        prerelease: ${{ github.event.inputs.is_prerelease }}
+    
+    # - name: Push to NuGet
+    #   run: |
+    #     dotnet nuget push ./artifacts/* -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
