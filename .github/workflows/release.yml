@@ -13,10 +13,6 @@ on:
         required: true
         default: false
         type: boolean
-      version:
-        description: "Version tag:"
-        required: true
-        type: string
 
 permissions:
   contents: write
@@ -30,10 +26,17 @@ jobs:
       uses: actions/checkout@v3
     
     - name: Checkout to the version tag provided
+      id: checkout_tag
       run: |
-        VERSION=${{ github.event.inputs.version }}
+        if [[ "${{ github.ref }}" != refs/tags/* ]]; then
+          echo "ERROR: This workflow requires a tag to be set."
+          exit 1
+        fi
+
+        VERSION=${{ github.ref }}
         git fetch --tags
         git checkout $VERSION
+        echo "::set-output name=VERSION::$VERSION"
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -62,12 +65,12 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: ./artifacts/*
-        name: ${{ github.event.inputs.version }}
-        tag_name: ${{ github.event.inputs.version }}
+        name: ${{ steps.checkout_tag.outputs.VERSION }}
+        tag_name: ${{ steps.checkout_tag.outputs.VERSION }}
         generate_release_notes: true
         draft: true
         prerelease: ${{ github.event.inputs.is_prerelease }}
     
-    # - name: Push to NuGet
-    #   run: |
-    #     dotnet nuget push ./artifacts/* -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+    - name: Push to NuGet
+      if: ${{ github.event.inputs.publish_to_nuget == true }}
+      run: dotnet nuget push ./artifacts/* -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
