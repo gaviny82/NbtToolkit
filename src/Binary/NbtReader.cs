@@ -31,8 +31,8 @@ public partial class NbtReader : IDisposable
     {
         Stream = compression switch
         {
-            NbtCompression.GZip => new GZipStream(input, CompressionMode.Decompress),
-            NbtCompression.ZLib => new ZLibStream(input, CompressionMode.Decompress),
+            NbtCompression.GZip => new BufferedStream(new GZipStream(input, CompressionMode.Decompress)),
+            NbtCompression.ZLib => new BufferedStream(new ZLibStream(input, CompressionMode.Decompress)),
             NbtCompression.None => input,
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
