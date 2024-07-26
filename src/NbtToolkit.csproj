@@ -12,7 +12,7 @@
     <!-- NuGet -->
     <PropertyGroup>
         <PackageId>NbtToolkit</PackageId>
-        <Version>0.1.1-beta</Version>
+        <Version>0.1.2-beta</Version>
         <Authors>GavinY</Authors>
         <Description>A high performance library for reading and writing Minecraft NBT files and strings</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
