@@ -1,13 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NbtToolkit.Benchmark;
 
-public class AccessIntTags
+public class ReadIntTags
 {
     [Params(1000, 10000)]
     public int N { get; set; }

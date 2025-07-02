@@ -78,7 +78,7 @@ public class ReverseByteOrder
     }
 
     [Benchmark]
-    public void ReverseBytes_BuiltIn()
+    public void ReverseBytes_BinaryPrimitives()
     {
        for (int i = 0; i < N; i++)
         {

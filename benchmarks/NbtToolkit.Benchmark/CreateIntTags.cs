@@ -58,20 +58,11 @@ public class CreateIntTags
     }
 
     [Benchmark]
-    public void CreateIntTags_Reference_DictInt()
+    public void CreateIntTags_Dict()
     {
         for (int i = 0; i < N; i++)
         {
             _dictInt[keys[i]] = values[i];
         }
-    }
-
-    [IterationCleanup]
-    public void Cleanup()
-    {
-        _tag = new TagCompound();
-        _fnbtTag = new fNbt.NbtCompound();
-        _substrateTag = new Substrate.Nbt.TagNodeCompound();
-        _dictInt = new Dictionary<string, int>();
     }
 }
