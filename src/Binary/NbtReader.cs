@@ -54,9 +54,8 @@ public partial class NbtReader : IDisposable
     internal static NbtCompression DetectCompressionType(Stream stream)
     {
         int firstByte = stream.ReadByte();
-        stream.Seek(-1, SeekOrigin.Current);
 
-        return firstByte switch
+        NbtCompression compressionType = firstByte switch
         {
             -1 => throw new EndOfStreamException(),
             0x1F => NbtCompression.GZip,
@@ -65,6 +64,9 @@ public partial class NbtReader : IDisposable
             0x09 => throw new NotSupportedException("Bedrock NBT format is currently not supported"),
             _ => throw new FormatException("Invalid NBT format")
         };
+
+        stream.Seek(-1, SeekOrigin.Current);
+        return compressionType;
     }
 
     /// <summary>
