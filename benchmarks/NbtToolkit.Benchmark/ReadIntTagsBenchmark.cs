@@ -2,7 +2,7 @@
 
 namespace NbtToolkit.Benchmark;
 
-public class ReadIntTags
+public class ReadIntTagsBenchmark
 {
     [Params(1000, 10000)]
     public int N { get; set; }
@@ -37,7 +37,7 @@ public class ReadIntTags
     }
 
     [Benchmark(Baseline = true)]
-    public int AccessIntTags_MCT()
+    public int ReadIntTags()
     {
         int sum = 0;
         for (int i = 0; i < N; i++)
@@ -48,7 +48,7 @@ public class ReadIntTags
     }
 
     [Benchmark]
-    public int AccessIntTags_fNbt()
+    public int ReadIntTags_fNbt()
     {
         int sum = 0;
         for (int i = 0; i < N; i++)
@@ -59,7 +59,7 @@ public class ReadIntTags
     }
 
     [Benchmark]
-    public int AccessIntTags_Substrate()
+    public int ReadIntTags_Substrate()
     {
         int sum = 0;
         for (int i = 0; i < N; i++)
@@ -68,6 +68,4 @@ public class ReadIntTags
         }
         return sum;
     }
-
-
 }

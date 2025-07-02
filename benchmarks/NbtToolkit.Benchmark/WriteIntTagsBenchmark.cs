@@ -3,19 +3,12 @@
 namespace NbtToolkit.Benchmark;
 
 [MemoryDiagnoser(false)]
-public class CreateIntTags
+public class WriteIntTagsBenchmark
 {
-    [Params(1000, 10000)]
-    public int N { get; set; }
+    const int N = 10000;
 
     private string[] keys = null!;
     private int[] values = null!;
-
-    private TagCompound _tag = new();
-    private fNbt.NbtCompound _fnbtTag = new();
-    private Substrate.Nbt.TagNodeCompound _substrateTag = new();
-    private Dictionary<string, int> _dictInt = new();
-
 
     [GlobalSetup]
     public void Setup()
@@ -31,38 +24,42 @@ public class CreateIntTags
     }
 
     [Benchmark(Baseline = true)]
-    public void CreateIntTags_MCT()
+    public void WriteIntTags()
     {
+        var tag = new TagCompound();
         for (int i = 0; i < N; i++)
         {
-            _tag[keys[i]] = new TagInt(values[i]);
+            tag[keys[i]] = new TagInt(values[i]);
         }
     }
 
     [Benchmark]
-    public void CreateIntTags_fNbt()
+    public void WriteIntTags_fNbt()
     {
+        var tag = new fNbt.NbtCompound();
         for (int i = 0; i < N; i++)
         {
-            _fnbtTag[keys[i]] = new fNbt.NbtInt(keys[i], values[i]);
+            tag[keys[i]] = new fNbt.NbtInt(keys[i], values[i]);
         }
     }
 
     [Benchmark]
-    public void CreateIntTags_Substrate()
+    public void WriteIntTags_Substrate()
     {
+        var tag = new Substrate.Nbt.TagNodeCompound();
         for (int i = 0; i < N; i++)
         {
-            _substrateTag[keys[i]] = new Substrate.Nbt.TagNodeInt(values[i]);
+            tag[keys[i]] = new Substrate.Nbt.TagNodeInt(values[i]);
         }
     }
 
     [Benchmark]
-    public void CreateIntTags_Dict()
+    public void WriteIntTags_Dict()
     {
+        var dict = new Dictionary<string, int>();
         for (int i = 0; i < N; i++)
         {
-            _dictInt[keys[i]] = values[i];
+            dict[keys[i]] = values[i];
         }
     }
 }
