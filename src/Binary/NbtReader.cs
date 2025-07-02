@@ -21,13 +21,24 @@ public partial class NbtReader : IDisposable
     private readonly NbtBinaryReader _reader;
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="NbtReader"/> class for the specified stream and detect the compression type automatically.
+    /// </summary>
+    /// <param name="input">The <see cref="System.IO.Stream"/> from which this <see cref="NbtReader"/> reads.</param>
+    /// <param name="leaveOpen">If the <paramref name="input"/> stream is left open when this <see cref="NbtReader"/> is disposed.</param>
+    /// <exception cref="EndOfStreamException"></exception>
+    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="FormatException"></exception>
+    public NbtReader(Stream input, bool leaveOpen = false)
+        : this(input, DetectCompressionType(input), leaveOpen) { }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="NbtReader"/> class for the specified stream.
     /// </summary>
     /// <param name="input">The <see cref="System.IO.Stream"/> from which this <see cref="NbtReader"/> reads.</param>
     /// <param name="compression">Compression type of the data written to the <paramref name="input"/> stream.</param>
     /// <param name="leaveOpen">If the <paramref name="input"/> stream is left open when this <see cref="NbtReader"/> is disposed.</param>
     /// <exception cref="ArgumentException">Invalid <see cref="NbtCompression"/> provided by <paramref name="compression"/>.</exception>
-    public NbtReader(Stream input, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
+    public NbtReader(Stream input, NbtCompression compression, bool leaveOpen = false)
     {
         Stream = compression switch
         {
@@ -37,6 +48,25 @@ public partial class NbtReader : IDisposable
             _ => throw new ArgumentException("Invalid compression type", nameof(compression))
         };
         _reader = new NbtBinaryReader(Stream, leaveOpen);
+    }
+
+    // Detect the compression type of a NBT file using the first byte
+    internal static NbtCompression DetectCompressionType(Stream stream)
+    {
+        int firstByte = stream.ReadByte();
+
+        NbtCompression compressionType = firstByte switch
+        {
+            -1 => throw new EndOfStreamException(),
+            0x1F => NbtCompression.GZip,
+            0x78 => NbtCompression.ZLib,
+            0x0A => NbtCompression.None,
+            0x09 => throw new NotSupportedException("Bedrock NBT format is currently not supported"),
+            _ => throw new FormatException("Invalid NBT format")
+        };
+
+        stream.Seek(-1, SeekOrigin.Current);
+        return compressionType;
     }
 
     /// <summary>
