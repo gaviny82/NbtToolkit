@@ -38,7 +38,7 @@ public partial class NbtReader : IDisposable
     /// <param name="compression">Compression type of the data written to the <paramref name="input"/> stream.</param>
     /// <param name="leaveOpen">If the <paramref name="input"/> stream is left open when this <see cref="NbtReader"/> is disposed.</param>
     /// <exception cref="ArgumentException">Invalid <see cref="NbtCompression"/> provided by <paramref name="compression"/>.</exception>
-    public NbtReader(Stream input, NbtCompression compression = NbtCompression.None, bool leaveOpen = false)
+    public NbtReader(Stream input, NbtCompression compression, bool leaveOpen = false)
     {
         Stream = compression switch
         {
@@ -51,7 +51,7 @@ public partial class NbtReader : IDisposable
     }
 
     // Detect the compression type of a NBT file using the first byte
-    private static NbtCompression DetectCompressionType(Stream stream)
+    internal static NbtCompression DetectCompressionType(Stream stream)
     {
         int firstByte = stream.ReadByte();
         stream.Seek(-1, SeekOrigin.Current);
