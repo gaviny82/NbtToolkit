@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/Benchmark Libraries/">
+    <Project Path="benchmarks/libs/fNbt/fNbt/fNbt.csproj" />
+    <Project Path="benchmarks/libs/Substrate/Substrate/Substrate.csproj" />
+  </Folder>
+  <Folder Name="/GitHub Actions/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/doc.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="samples/LevelFile/LevelFile.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="benchmarks/NbtToolkit.Benchmark/NbtToolkit.Benchmark.csproj" />
+  <Project Path="src/NbtToolkit.csproj" />
+  <Project Path="tests/NbtToolkit.Test/NbtToolkit.Test.csproj" />
+</Solution>
