@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace NbtToolkit.Benchmark;
 
 [MemoryDiagnoser(false)]
-public class WriteLevelDatFile
+public class WriteLevelDatFileBenchmark
 {
     private const string LevelFile = "sample-files/sample-world-1_20_6-default/level.dat";
     private byte[] _buffer = new byte[128 * 1024];

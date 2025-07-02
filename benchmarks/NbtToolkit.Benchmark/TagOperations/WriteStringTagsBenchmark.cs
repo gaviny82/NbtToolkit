@@ -1,62 +1,62 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace NbtToolkit.Benchmark;
+namespace NbtToolkit.Benchmark.TagOperations;
 
 [MemoryDiagnoser(false)]
-public class WriteIntTagsBenchmark
+public class WriteStringTagsBenchmark
 {
     const int N = 10000;
 
     private string[] keys = null!;
-    private int[] values = null!;
+    private string[] values = null!;
 
     [GlobalSetup]
     public void Setup()
     {
         keys = new string[N];
-        values = new int[N];
+        values = new string[N];
         Random random = new();
         for (int i = 0; i < N; i++)
         {
             keys[i] = Guid.NewGuid().ToString();
-            values[i] = random.Next();
+            values[i] = random.Next().ToString();
         }
     }
 
     [Benchmark(Baseline = true)]
-    public void WriteIntTags()
+    public void WriteStringTags()
     {
         var tag = new TagCompound();
         for (int i = 0; i < N; i++)
         {
-            tag[keys[i]] = new TagInt(values[i]);
+            tag[keys[i]] = new TagString(values[i]);
         }
     }
 
     [Benchmark]
-    public void WriteIntTags_fNbt()
+    public void WriteStringTags_fNbt()
     {
         var tag = new fNbt.NbtCompound();
         for (int i = 0; i < N; i++)
         {
-            tag[keys[i]] = new fNbt.NbtInt(keys[i], values[i]);
+            tag[keys[i]] = new fNbt.NbtString(keys[i], values[i]);
         }
     }
 
     [Benchmark]
-    public void WriteIntTags_Substrate()
+    public void WriteStringTags_Substrate()
     {
         var tag = new Substrate.Nbt.TagNodeCompound();
         for (int i = 0; i < N; i++)
         {
-            tag[keys[i]] = new Substrate.Nbt.TagNodeInt(values[i]);
+            tag[keys[i]] = new Substrate.Nbt.TagNodeString(values[i]);
         }
     }
 
     [Benchmark]
-    public void WriteIntTags_Dict()
+    public void WriteStringTags_Dict()
     {
-        var dict = new Dictionary<string, int>();
+        var dict = new Dictionary<string, string>();
         for (int i = 0; i < N; i++)
         {
             dict[keys[i]] = values[i];

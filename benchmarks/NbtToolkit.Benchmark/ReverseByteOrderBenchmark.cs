@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NbtToolkit.Benchmark;
 
-public class ReverseByteOrder
+public class ReverseByteOrderBenchmark
 {
     [Params(1000)]
     public int N { get; set; }

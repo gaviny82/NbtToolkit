@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace NbtToolkit.Benchmark;
+namespace NbtToolkit.Benchmark.TagOperations;
 
 public class ReadIntTagsBenchmark
 {
