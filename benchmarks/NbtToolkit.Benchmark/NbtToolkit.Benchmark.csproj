@@ -19,7 +19,7 @@
 
   <!-- Copy sample files for testing to output directory -->
   <ItemGroup>
-    <Content Include=".\sample-files\**">
+    <Content Include="..\..\sample-files\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>sample-files\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
