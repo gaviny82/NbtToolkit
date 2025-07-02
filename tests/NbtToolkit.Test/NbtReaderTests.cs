@@ -13,7 +13,7 @@ public class NbtReaderTests
         sbyte[] values = NbtBinaryTestCases.TagList_Byte_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<sbyte> result = (TagList<sbyte>)reader.ReadTagList();
@@ -32,7 +32,7 @@ public class NbtReaderTests
         short[] values = NbtBinaryTestCases.TagList_Short_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<short> result = (TagList<short>)reader.ReadTagList();
@@ -51,7 +51,7 @@ public class NbtReaderTests
         int[] values = NbtBinaryTestCases.TagList_Int_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<int> result = (TagList<int>)reader.ReadTagList();
@@ -70,7 +70,7 @@ public class NbtReaderTests
         long[] values = NbtBinaryTestCases.TagList_Long_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<long> result = (TagList<long>)reader.ReadTagList();
@@ -89,7 +89,7 @@ public class NbtReaderTests
         float[] values = NbtBinaryTestCases.TagList_Float_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<float> result = (TagList<float>)reader.ReadTagList();
@@ -110,7 +110,7 @@ public class NbtReaderTests
         double[] values = NbtBinaryTestCases.TagList_Double_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<double> result = (TagList<double>)reader.ReadTagList();
@@ -131,7 +131,7 @@ public class NbtReaderTests
         string[] values = NbtBinaryTestCases.TagList_String_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<string> result = (TagList<string>)reader.ReadTagList();
@@ -150,7 +150,7 @@ public class NbtReaderTests
         sbyte[][] values = NbtBinaryTestCases.TagList_ByteArray_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<sbyte[]> result = (TagList<sbyte[]>)reader.ReadTagList();
@@ -170,7 +170,7 @@ public class NbtReaderTests
         int[][] values = NbtBinaryTestCases.TagList_IntArray_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<int[]> result = (TagList<int[]>)reader.ReadTagList();
@@ -190,7 +190,7 @@ public class NbtReaderTests
         long[][] values = NbtBinaryTestCases.TagList_LongArray_Values;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<long[]> result = (TagList<long[]>)reader.ReadTagList();
@@ -209,7 +209,7 @@ public class NbtReaderTests
         TagCompound value = NbtBinaryTestCases.TagCompound_Simple_Value;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagCompound result = reader.ReadTagCompound();
@@ -226,7 +226,7 @@ public class NbtReaderTests
         TagList<TagList> value = NbtBinaryTestCases.TagList_IntList_Value;
 
         using MemoryStream stream = new(bytes);
-        using NbtReader reader = new(stream);
+        using NbtReader reader = new(stream, NbtCompression.None); // Bypass compression detection to test internal method ReadTagCompound
 
         // Act
         TagList<TagList> result = (TagList<TagList>)reader.ReadTagList();
