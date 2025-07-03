@@ -1,8 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
+using TagCompound_UnionImpl = NbtToolkit.Benchmark.OtherImpls.TagCompound;
 
 namespace NbtToolkit.Benchmark.TagOperations;
 
-[MemoryDiagnoser(false)]
+[MemoryDiagnoser(false), ShortRunJob]
 public class WriteIntTagsBenchmark
 {
     const int N = 10000;
@@ -30,6 +31,16 @@ public class WriteIntTagsBenchmark
         for (int i = 0; i < N; i++)
         {
             tag[keys[i]] = new TagInt(values[i]);
+        }
+    }
+
+    [Benchmark]
+    public void WriteIntTags_Union()
+    {
+        var tag = new TagCompound_UnionImpl();
+        for (int i = 0; i < N; i++)
+        {
+            tag[keys[i]] = new OtherImpls.TagValue(values[i]);
         }
     }
 
